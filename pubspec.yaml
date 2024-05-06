@@ -1,0 +1,54 @@
+name: fluent
+description: "AI-based English pronunciation learning service"
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.1 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  cupertino_icons: ^1.0.6
+  flutter_config: ^2.0.2
+  envied: ^0.5.4+1
+  image_picker: ^1.1.1
+  intl: ^0.19.0
+  kakao_flutter_sdk: ^1.9.1+2
+  change_app_package_name: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.0
+  build_runner: ^2.4.9
+  envied_generator: ^0.5.4+1
+
+
+flutter:
+  assets:
+    - assets/images/
+    - assets/images/kakao/
+
+  fonts:
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Nunito-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Nunito-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Nunito-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Nunito-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Nunito-ExtraBold.ttf
+          weight: 900
+
+  uses-material-design: true
