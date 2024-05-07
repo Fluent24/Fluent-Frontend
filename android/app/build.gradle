@@ -22,6 +22,8 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def kakaoNativeAppKey = localProperties['KAKAO_NATIVE_APP_KEY'] ?: ""
+
 android {
     namespace "com.fluent.fluent"
     compileSdk flutter.compileSdkVersion
@@ -49,6 +51,8 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        manifestPlaceholders["kakaoNativeAppKey"] = kakaoNativeAppKey
     }
 
     buildTypes {
@@ -65,3 +69,5 @@ flutter {
 }
 
 dependencies {}
+
+apply from: project(':flutter_config').projectDir.getPath() + "/dotenv.gradle"

@@ -3,10 +3,13 @@ import 'package:fluent/screens/main_screen.dart';
 import 'package:fluent/screens/register_screen.dart';
 import 'package:fluent/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_config/flutter_config.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // 환경 변수 불러오기
+  await FlutterConfig.loadEnvVariables();
 
   // kakao SDK 초기화
   KakaoSdk.init(
