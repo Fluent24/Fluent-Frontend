@@ -2,6 +2,7 @@ import 'package:fluent/env/env.dart';
 import 'package:fluent/screens/learn_screen.dart';
 import 'package:fluent/screens/main_screen.dart';
 import 'package:fluent/screens/register_screen.dart';
+import 'package:fluent/screens/review_screen.dart';
 import 'package:fluent/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
@@ -26,6 +27,7 @@ Future<void> main() async {
       '/register': (context) => RegisterScreen(),
       '/main': (context) => MainScreen(),
       '/learn': (context) => LearnScreen(),
+      '/review': (context) => ReviewScreen(),
     },
   ));
 }

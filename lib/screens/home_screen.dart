@@ -138,18 +138,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 20),
 
                     // start button
-                    Container(
-                      width: double.infinity,
-                      height: 50,
-                      decoration: ShapeDecoration(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          )),
-                      child: GestureDetector(
-                        onTap: () {
-                          // 복습하기 화면으로 이동
-                        },
+                    GestureDetector(
+                      onTap: () {
+                        // 복습하기 화면으로 이동
+                        Navigator.pushNamed(context, '/review');
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 50,
+                        decoration: ShapeDecoration(
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            )),
                         child: const Center(
                           child: Text(
                             'Start',
