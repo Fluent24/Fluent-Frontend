@@ -1,4 +1,5 @@
 import 'package:fluent/env/env.dart';
+import 'package:fluent/screens/learn_screen.dart';
 import 'package:fluent/screens/main_screen.dart';
 import 'package:fluent/screens/register_screen.dart';
 import 'package:fluent/screens/splash_screen.dart';
@@ -24,6 +25,7 @@ Future<void> main() async {
       // '/': (context) => SplashScreen(),
       '/register': (context) => RegisterScreen(),
       '/main': (context) => MainScreen(),
+      '/learn': (context) => LearnScreen(),
     },
   ));
 }
