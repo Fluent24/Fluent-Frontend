@@ -19,9 +19,9 @@ Future<void> main() async {
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: '/',
+    initialRoute: '/main',
     routes: {
-      '/': (context) => SplashScreen(),
+      // '/': (context) => SplashScreen(),
       '/register': (context) => RegisterScreen(),
       '/main': (context) => MainScreen(),
     },
