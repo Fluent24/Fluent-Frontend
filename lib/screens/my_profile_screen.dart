@@ -16,6 +16,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: const Text('프로필'),
           elevation: 0,
@@ -98,11 +99,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             ),
 
             // 주간 점수 차트
-            Padding(
-              padding: const EdgeInsets.all(25),
+            const Padding(
+              padding: EdgeInsets.all(25),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     'Weekly Score Chart',
                     style: TextStyle(
                       fontSize: 20,

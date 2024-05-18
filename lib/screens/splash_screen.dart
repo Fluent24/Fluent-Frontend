@@ -10,48 +10,48 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(
-      Duration(milliseconds: 1500),
-      () async {
-        // 런치 스크린 동안 처리할 로직
-        if (await AuthApi.instance.hasToken()) {
-          try {
-            AccessTokenInfo tokenInfo =
-                await UserApi.instance.accessTokenInfo();
-            print('토큰 유효성 체크 성공 ${tokenInfo.id} ${tokenInfo.expiresIn}');
-            // 여기서 넘어가면 바로 메인 화면
-            Navigator.popAndPushNamed(context, '/main');
-          } catch (error) {
-            if (error is KakaoException && error.isInvalidTokenError()) {
-              print('토큰 만료 $error');
-            } else {
-              print('토큰 정보 조회 실패 $error');
-            }
-
-            try {
-              // 카카오계정으로 로그인
-              OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-              print('로그인 성공 ${token.accessToken}');
-            } catch (error) {
-              print('로그인 실패 $error');
-            }
-          }
-        } else {
-          print('발급된 토큰 없음');
-
-          try {
-            OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-            print('로그인 성공 ${token.accessToken}');
-          } catch (error) {
-            print('로그인 실패 $error');
-          }
-        }
-      },
-    );
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   Future.delayed(
+  //     Duration(milliseconds: 1500),
+  //     () async {
+  //       // 런치 스크린 동안 처리할 로직
+  //       if (await AuthApi.instance.hasToken()) {
+  //         try {
+  //           AccessTokenInfo tokenInfo =
+  //               await UserApi.instance.accessTokenInfo();
+  //           print('토큰 유효성 체크 성공 ${tokenInfo.id} ${tokenInfo.expiresIn}');
+  //           // 여기서 넘어가면 바로 메인 화면
+  //           Navigator.popAndPushNamed(context, '/main');
+  //         } catch (error) {
+  //           if (error is KakaoException && error.isInvalidTokenError()) {
+  //             print('토큰 만료 $error');
+  //           } else {
+  //             print('토큰 정보 조회 실패 $error');
+  //           }
+  //
+  //           try {
+  //             // 카카오계정으로 로그인
+  //             OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
+  //             print('로그인 성공 ${token.accessToken}');
+  //           } catch (error) {
+  //             print('로그인 실패 $error');
+  //           }
+  //         }
+  //       } else {
+  //         print('발급된 토큰 없음');
+  //
+  //         try {
+  //           OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
+  //           print('로그인 성공 ${token.accessToken}');
+  //         } catch (error) {
+  //           print('로그인 실패 $error');
+  //         }
+  //       }
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -110,6 +110,16 @@ class _SplashScreenState extends State<SplashScreen> {
                           OAuthToken token =
                               await UserApi.instance.loginWithKakaoTalk();
                           print('카카오톡 로그인 성공 ${token.accessToken}');
+
+                          try {
+                            User user = await UserApi.instance.me();
+                            print('사용자 정보 요청 성공'
+                                '\n회원번호: ${user.id}'
+                                '\n닉네임: ${user.kakaoAccount?.profile?.nickname}'
+                                '\n이메일: ${user.kakaoAccount?.email}');
+                          } catch (error) {
+                            print('사용자 정보 요청 실패 $error');
+                          }
                         } catch (error) {
                           print('카카오톡 로그인 실패 $error');
 

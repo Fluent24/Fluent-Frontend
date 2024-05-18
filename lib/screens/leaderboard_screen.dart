@@ -36,6 +36,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         body: Column(
           children: [
             // 상단 랭크 목록 뷰 (가로 스크롤)

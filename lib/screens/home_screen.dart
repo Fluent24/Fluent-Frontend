@@ -21,14 +21,30 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Daily Course / Required Time / Start Button
             Container(
-              width: double.infinity,
+              constraints: BoxConstraints(maxWidth: double.infinity, maxHeight: 200),
+
               margin: const EdgeInsets.all(20),
               // outline design
-              decoration: ShapeDecoration(
-                  color: const Color(0xFF0047FF).withOpacity(0.8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  )),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF0047FF), Color(0xFF0047FF).withOpacity(0.5)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xFF0047FF).withOpacity(0.3),
+                    blurRadius: 0,
+                    offset: const Offset(0, 12),
+                  ),
+                  BoxShadow(
+                    color: Color(0xFF0047FF).withOpacity(0.3),
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+                borderRadius: BorderRadius.circular(30),
+              ),
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -40,10 +56,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '🏆 Daily Course',
+                          'Daily Course',
                           style: TextStyle(
                             color: Colors.white,
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Poppins',
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -52,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           '12m',
                           style: TextStyle(
                             color: Colors.white,
-                            fontFamily: 'Nunito',
+                            fontFamily: 'Poppins',
                             fontSize: 12,
                             fontWeight: FontWeight.w400,
                           ),
@@ -81,9 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             'Start',
                             style: TextStyle(
                               color: Colors.blueAccent,
-                              fontFamily: 'Nunito',
+                              fontFamily: 'Poppins',
                               fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
