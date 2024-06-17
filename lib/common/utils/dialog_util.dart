@@ -54,7 +54,7 @@ class DialogUtil {
             ),
           ),
           actionsAlignment: MainAxisAlignment.spaceBetween,
-          actionsPadding: const EdgeInsets.fromLTRB(30.0, 0, 30.0, 20.0),
+          actionsPadding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 20.0),
           actions: [
             // 확인 버튼
             // Navigator.popUntil(context, (route) => route.settings.name == '/main')
@@ -156,7 +156,7 @@ class DialogUtil {
           borderRadius: BorderRadius.circular(5),
         ),
         // 디바이스 크기에 맞게 변경하기
-        minimumSize: const Size(130, 40),
+        minimumSize: const Size(120, 40),
       ),
       child: SectionText(
         text: text,
@@ -180,7 +180,7 @@ class DialogUtil {
             color: Colors.black.withOpacity(0.2),
           ),
         ),
-        minimumSize: const Size(130, 40),
+        minimumSize: const Size(120, 40),
       ),
       child: SectionText(
         text: text,

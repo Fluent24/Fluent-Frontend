@@ -1,6 +1,9 @@
 // 피드백 화면
 // Script와 Feedback이 한 줄씩 적혀야 함
 // 디바이스 크기에 따라 다르지만, 테스트 기기 기준 한 줄당 20자에서 잘라서 출력
+import 'dart:convert';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:fluent/widgets/text.dart';
 import 'package:fluent/widgets/waveform.dart';
 import 'package:flutter/material.dart';
@@ -9,21 +12,69 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:fluent/common/utils/dialog_util.dart';
 
+import '../common/dio/dio.dart';
+import '../env/env.dart';
 import '../provider/promo_provider.dart';
 import '../provider/question_provider.dart';
 import '../provider/user_provider.dart';
 
 class FeedbackScreen extends ConsumerStatefulWidget {
+  String questionScript;
   String userScript;
   double totalScore;
   FeedbackScreen(
-      {super.key, required this.userScript, required this.totalScore});
+      {super.key, required this.questionScript, required this.userScript, required this.totalScore});
 
   @override
   ConsumerState<FeedbackScreen> createState() => _FeedbackScreenState();
 }
 
 class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
+  List<int> incorrectIndices = [];
+  bool isLoadingCompareResult = true;
+  late AudioPlayer audioPlayer;
+
+  @override
+  void initState() {
+    audioPlayer = AudioPlayer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadIncorrectIndexList(widget.questionScript, widget.userScript);
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
+  }
+
+
+  /// 문장 비교하여 틀린 단어 인덱스 가져오기
+  Future<void> loadIncorrectIndexList(String correctSentence, String givenSentence) async {
+    final dio = ref.read(dioProvider);
+    final requestData = {
+      'correctSentence': correctSentence.toUpperCase(),
+      'givenSentence': givenSentence.toUpperCase(),
+    };
+
+    try {
+      final response = await dio.post('${Env.serverEndpoint}/api/compare', data: jsonEncode(requestData));
+
+      if (response.statusCode == 200) {
+        final result = response.data;
+        setState(() {
+          incorrectIndices = List<int>.from(result).reversed.toList();
+          print('[LOG] SUCCESS COMPARE : $incorrectIndices');
+          isLoadingCompareResult = false;
+        });
+      }
+    } catch (e) {
+      print('[ERR] REQUEST COMPARE ERROR : $e');
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     final questionModel = ref.read(questionModelProvider); // 피드백 확인 -> 퀴즈모델 초기화
@@ -31,7 +82,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     final promoState = ref.watch(promoModelProvider.notifier);
 
     // API로부터 데이터를 가져오는 중일 때
-    if (questionModel.isLoading || userData.isLoading) {
+    if (questionModel.isLoading || userData.isLoading || isLoadingCompareResult) {
       return Scaffold(
         backgroundColor: Colors.white,
         body: Center(
@@ -218,16 +269,54 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8.0),
                                       child: SingleChildScrollView(
-                                        child: Text(
-                                          widget.userScript,
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w500,
-                                            fontStyle: FontStyle.italic,
-                                            color: Colors.black,
-                                            height: 2, // 줄간격
-                                          ),
+                                        child: Column(
+                                          children: [
+                                            Stack(
+                                              children: [
+                                                SizedBox(
+                                                  width: MediaQuery.of(context).size.width,
+                                                  child: Text(
+                                                    widget.userScript,
+                                                    style: const TextStyle(
+                                                      fontSize: 16.0,
+                                                      fontFamily: 'Poppins',
+                                                      fontWeight: FontWeight.w600,
+                                                      fontStyle: FontStyle.italic,
+                                                      color: Colors.transparent,
+                                                      wordSpacing: 2,
+                                                      height: 5, // 줄간격
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width: MediaQuery.of(context).size.width,
+                                                  child: Text(
+                                                    widget.questionScript,
+                                                    style: const TextStyle(
+                                                      fontSize: 16.0,
+                                                      fontFamily: 'Poppins',
+                                                      fontWeight: FontWeight.w700,
+                                                      fontStyle: FontStyle.italic,
+                                                      color: Colors.black,
+                                                      wordSpacing: 2,
+                                                      height: 4, // 줄간격
+                                                    ),
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                  top: 35,
+                                                  child: SizedBox(
+                                                    width: MediaQuery.of(context).size.width / 1.6,
+                                                    child: RichText(
+                                                        text: TextSpan(
+                                                          children: highlightDifferences(widget.userScript, incorrectIndices),
+                                                        )
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
@@ -245,6 +334,8 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                                     ElevatedButton(
                                       onPressed: () {
                                         // 레퍼런스 음성 파일 다시 재생하기
+                                        final filePath = questionModel.refAudio;
+                                        audioPlayer.play(UrlSource(filePath));
                                       },
                                       style: TextButton.styleFrom(
                                         backgroundColor:
@@ -424,5 +515,43 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
         ),
       );
     }
+  }
+
+  /// 틀린 문자 있는 부분 단어 색칠하는 함수
+  List<TextSpan> highlightDifferences(String userScript, List<int> incorrectIndices) {
+    List<TextSpan> spans = [];
+    List<String> words = userScript.split(' ');
+
+    int charIndex = 0;
+
+    for (String word in words) {
+      bool hasIncorrectChar = false;
+
+      for (int i = 0; i < word.length; i++) {
+        if (incorrectIndices.contains(charIndex + i)) {
+          hasIncorrectChar = true;
+          break;
+        }
+      }
+
+      spans.add(
+          TextSpan(
+              text: '$word ',
+              style: TextStyle(
+                color: hasIncorrectChar ? Colors.red : Colors.grey,
+                fontSize: 15.0,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w500,
+                fontStyle: FontStyle.italic,
+                wordSpacing: 2,
+                height: 4.5, // 줄간격
+              )
+          )
+      );
+
+      charIndex += word.length + 1; // 공백 추가
+    }
+
+    return spans;
   }
 }

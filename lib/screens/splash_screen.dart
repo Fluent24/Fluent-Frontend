@@ -28,9 +28,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loginState = ref.watch(kakaoLoginServiceProvider);
+    // final loginState = ref.watch(kakaoLoginServiceProvider);
     print('[LOG] BUTTON : ${isButtonVisible}');
-    print('[LOG] LOGIN STATE: $loginState');
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,

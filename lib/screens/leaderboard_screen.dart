@@ -36,13 +36,14 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         setState(() {
           _selectedTier = userData.tier;
         });
+
+        if (_pickedData.isEmpty) {
+          setState(() {
+            _pickedData = data;
+          });
+        }
       }
 
-      if (_pickedData.isEmpty) {
-        setState(() {
-          _pickedData = data;
-        });
-      }
 
       return SafeArea(
         child: Scaffold(

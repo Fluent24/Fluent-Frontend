@@ -1,4 +1,6 @@
 // 학습하기 화면
+import 'dart:io';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dio/dio.dart';
 import 'package:fluent/common/dio/dio.dart';
@@ -296,6 +298,10 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                     ElevatedButton(
                                       onPressed: () {
                                         // 레퍼런스 음성 파일 다시 재생하기
+                                        final filePath = ref
+                                            .read(questionModelProvider)
+                                            .refAudio;
+                                        audioPlayer.play(UrlSource(filePath));
                                       },
                                       style: TextButton.styleFrom(
                                         backgroundColor:
@@ -435,61 +441,88 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                 curl -X POST ip/infer2/ -H "Content-Type:multipart/form-data" -F "files=/절대경로/test.m4a"
                                */
 
-                              print('[LOG] [LEARN] AUDIO FILE PATH : $audioPath');
+                              print(
+                                  '[LOG] [LEARN] AUDIO FILE PATH : $audioPath');
                               final dio = Dio();
                               // final dio = ref.read(dioProvider);
 
                               dio.options = BaseOptions(
-                                connectTimeout: const Duration(seconds: 5),
-                                receiveTimeout: const Duration(seconds: 25),
+                                connectTimeout: const Duration(seconds: 60),
+                                receiveTimeout: const Duration(seconds: 60),
                               );
 
-                              int maxRetry = 3; // 재시도 횟수
-                              int retryInterval = 1; // 재시도 간격 (1초)
+                              // 로깅 인터셉터 추가
+                              dio.interceptors.add(LogInterceptor(
+                                responseBody: true,
+                                requestBody: true,
+                                requestHeader: true,
+                              ));
 
-                              int retryCount = 0;
-                              bool shouldRetry = true;
+                              // int maxRetry = 1; // 재시도 횟수
+                              // int retryInterval = 1; // 재시도 간격 (1초)
+                              //
+                              // int retryCount = 0;
+                              // bool shouldRetry = true;
 
-                              while (shouldRetry) {
-                                try {
+                              // while (shouldRetry) {
+                              try {
+                                final file = File(audioPath);
+
+                                /// 파일 정보 확인
+                                if (await file.exists()) {
+                                  final fileSize = await file.length();
+
+                                  print('[LOG] 파일 크기 : $fileSize 바이트');
+
                                   String uri = '${Env.aiEndpoint}/infer/';
                                   FormData formData = FormData.fromMap({
                                     'files': await MultipartFile.fromFile(
                                       audioPath,
-                                      // filename: 'user_record.m4a',
                                     ),
                                   });
-                                  final response = await dio.post(uri,
-                                      data: formData,
-                                      options: Options(headers: {
+                                  final response = await dio.post(
+                                    uri,
+                                    data: formData,
+                                    options: Options(
+                                      headers: {
                                         'Content-Type': 'multipart/form-data',
-                                      }));
+                                      },
+                                    ),
+                                  );
+
+                                  print('[LOG] [LEARN] GET AI RESPONSE');
 
                                   if (response.statusCode == 200) {
-                                    shouldRetry = false;
+                                    // shouldRetry = false;
                                     var jsonData = response.data[0];
 
-                                    print('[LOG] [LEARN] AI RESPONSE: $jsonData');
+                                    print(
+                                        '[LOG] [LEARN] AI RESPONSE: $jsonData');
                                     // 사용자 발음 스크립트
                                     final userScript =
-                                    jsonData['transcription'] as String;
-                                    final totalScore =
-                                    (jsonData['total_score']).roundToDouble();
+                                        jsonData['transcription'] as String;
+                                    final totalScore = (jsonData['total_score'])
+                                        .roundToDouble();
 
                                     /// 히스토리에 문제 푼 기록을 등록한다.
-                                    final historyManager = ref.read(historyModelProvider.notifier);
+                                    final historyManager =
+                                        ref.read(historyModelProvider.notifier);
 
                                     print('[LOG] [LEARN] FETCH HISTORY LIST');
 
                                     // 복습하기 모드인 경우 현재 히스토리를 삭제한다.
-                                    if (widget.quizId != null && widget.historyId != null) {
-                                      await historyManager.deleteHistory(widget.historyId!);
-                                      print('[LOG] [LEARN] DELETE OLD HISTORY IN LIST');
+                                    if (widget.quizId != null &&
+                                        widget.historyId != null) {
+                                      await historyManager
+                                          .deleteHistory(widget.historyId!);
+                                      print(
+                                          '[LOG] [LEARN] DELETE OLD HISTORY IN LIST');
                                     }
 
                                     // 현재 시간 yyyy-MM-dd 로 변경
                                     final String now =
-                                    DateTimeUtil.formatDateTime(DateTime.now());
+                                        DateTimeUtil.formatDateTime(
+                                            DateTime.now());
                                     final newHistoryModel = HistoryModel(
                                       score: totalScore,
                                       solverDate: now,
@@ -499,24 +532,28 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                     await historyManager
                                         .addHistory(newHistoryModel);
 
-                                    print('[LOG] [LEARN] ADD NEW HISTORY IN LIST');
+                                    print(
+                                        '[LOG] [LEARN] ADD NEW HISTORY IN LIST');
 
                                     // 승급전인 경우 기록한다.
                                     if (promoState.isPromo) {
                                       promoState.addScore(totalScore);
 
                                       final promoModel =
-                                      ref.read(promoModelProvider);
+                                          ref.read(promoModelProvider);
                                       // 승급 심사
                                       if (promoModel.scores.length == 3) {
                                         ref
                                             .read(userModelProvider.notifier)
-                                            .updateUser(promoModel.averageScore);
+                                            .updateUser(
+                                                promoModel.averageScore);
                                         promoState.reset(); // 승급전 완료 -> 초기화
                                       }
 
-                                      print('[LOG] [LEARN] PROCESS USER PROMOTION');
+                                      print(
+                                          '[LOG] [LEARN] PROCESS USER PROMOTION');
                                     }
+
                                     /// 사용자 정보 갱신
                                     else {
                                       ref
@@ -526,51 +563,60 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                       print('[LOG] [LEARN] UPDATE USER EXP');
                                     }
 
-                                    /// 문자 비교 API를 호출한다. --> 보류
-
                                     /// Navigator로 이동한다.
                                     Future.delayed(
                                       const Duration(milliseconds: 500),
-                                          () {
+                                      () {
                                         if (!mounted) return;
                                         Navigator.pushReplacementNamed(
-                                            context, '/feedback', arguments: {
-                                          'userScript': userScript,
-                                          'totalScore': totalScore
-                                        });
+                                            context, '/feedback',
+                                            arguments: {
+                                              'questionScript':
+                                                  questionModel.question,
+                                              'userScript': userScript,
+                                              'totalScore': totalScore
+                                            });
                                       },
                                     );
                                   }
-                                } on DioError catch (e) {
-                                  if (e.response != null) {
-                                    print('[ERR] DioError response: ${e.response}');
-                                    print('[ERR] DioError response status: ${e.response!.statusCode}');
-                                    print('[ERR] DioError response data: ${e.response!.data}');
-
-                                    if (e.response!.statusCode == 400) {
-                                      shouldRetry = false;
-                                    }
-                                  }
-                                  else {
-                                    print('[ERR] DioError: ${e.error}');
-                                    print('[ERR] DioError message: ${e.message}');
-                                    if (retryCount < maxRetry) {
-                                      retryCount++;
-                                      print('[ERR] [LEARN] RETRY ATTEMP $retryCount');
-                                      await Future.delayed(Duration(seconds: retryInterval));
-                                    }
-                                    else {
-                                      shouldRetry = false;
-                                      print('[ERR] [LEARN] MAX RETRY ATTEMPS REACHED');
-                                    }
-                                  }
-                                } catch (e) {
-                                  print('[ERR] Error: $e');
-                                  shouldRetry = false;
                                 }
+                                else {
+                                  print('[ERR] 파일이 존재하지 않습니다.');
+                                }
+                              } on DioError catch (e) {
+                                if (e.response != null) {
+                                  print(
+                                      '[ERR] DioError response: ${e.response}');
+                                  print(
+                                      '[ERR] DioError response status: ${e.response!.statusCode}');
+                                  print(
+                                      '[ERR] DioError response data: ${e.response!.data}');
+
+                                  if (e.response!.statusCode == 400) {
+                                    print('[ERR] DioError response: 400');
+                                    // shouldRetry = false;
+                                  }
+                                } else {
+                                  print('[ERR] DioError: ${e.error}');
+                                  print('[ERR] DioError message: ${e.message}');
+                                  print('[ERR] DioError Error Type ${e.type}');
+                                  print(
+                                      '[ERR] DioError Stack Trace ${e.stackTrace}');
+                                  // if (retryCount < maxRetry) {
+                                  //   retryCount++;
+                                  //   print('[ERR] [LEARN] RETRY ATTEMP $retryCount');
+                                  //   await Future.delayed(Duration(seconds: retryInterval));
+                                  // }
+                                  // else {
+                                  //   // shouldRetry = false;
+                                  //   print('[ERR] [LEARN] MAX RETRY ATTEMPS REACHED');
+                                  // }
+                                }
+                              } catch (e) {
+                                print('[ERR] Error: $e');
+                                // shouldRetry = false;
                               }
-
-
+                              // }
                             }
                           },
                           style: TextButton.styleFrom(

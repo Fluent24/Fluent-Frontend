@@ -26,14 +26,13 @@ Future<void> main() async {
   runApp(ProviderScope(
     child: MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/feedback_test',
+      initialRoute: '/',
       routes: {
         '/': (context) => SplashScreen(),
         '/main': (context) => MainScreen(),
         '/review': (context) => ReviewScreen(),
         '/profile': (context) => MyProfileScreen(),
         '/register': (context) => RegisterScreen(),
-        '/feedback_test': (context) => FeedbackTestScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/learn') {
@@ -91,9 +90,10 @@ Future<void> main() async {
             return PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) {
                 final argumentMap = settings.arguments as Map<String, dynamic>;
+                final questionScript = argumentMap['questionScript'] as String;
                 final userScript = argumentMap['userScript'] as String;
-                final totalScore = argumentMap['score'] as double;
-                return FeedbackScreen(userScript: settings.arguments as String, totalScore: totalScore);
+                final totalScore = argumentMap['totalScore'] as double;
+                return FeedbackScreen(questionScript: questionScript, userScript: userScript, totalScore: totalScore);
               },
               transitionsBuilder: (
                   BuildContext context,
