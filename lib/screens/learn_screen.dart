@@ -135,7 +135,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                 subtitle:
                     'You won\'t be able to get feedback on this sentence.',
                 reverse: true,
-                route: Routes.main,
+                route: widget.quizId == null ? Routes.main : Routes.history,
                 onPopLogic: onPopLogic,
               );
             },

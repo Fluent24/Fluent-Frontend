@@ -6,6 +6,7 @@ enum Routes {
   profile,
   review,
   delete,
+  history,
   logout
 }
 
@@ -84,6 +85,9 @@ class DialogUtil {
                     case Routes.review:
                       Navigator.popAndPushNamed(context, '/learn');
                       break;
+                    case Routes.history:
+                      Navigator.popAndPushNamed(context, '/history');
+                      break;
                     case Routes.delete:
                       Navigator.pop(context, true);
                       break;
@@ -118,6 +122,9 @@ class DialogUtil {
                       break;
                     case Routes.review:
                       Navigator.popAndPushNamed(context, '/learn');
+                      break;
+                    case Routes.history:
+                      Navigator.popAndPushNamed(context, '/history');
                       break;
                     case Routes.delete:
                       Navigator.pop(context, true);
