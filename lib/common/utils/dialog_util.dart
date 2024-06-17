@@ -83,10 +83,11 @@ class DialogUtil {
                           context, (route) => route.settings.name == '/profile');
                       break;
                     case Routes.review:
-                      Navigator.popAndPushNamed(context, '/learn');
+                      // Navigator.pushNamed(context, '/learn');
+                      Navigator.pop(context, true);
                       break;
                     case Routes.history:
-                      Navigator.popAndPushNamed(context, '/history');
+                      Navigator.popUntil(context, (route) => route.settings.name == '/review');
                       break;
                     case Routes.delete:
                       Navigator.pop(context, true);
@@ -121,10 +122,11 @@ class DialogUtil {
                           context, (route) => route.settings.name == '/profile');
                       break;
                     case Routes.review:
-                      Navigator.popAndPushNamed(context, '/learn');
+                      // Navigator.pushNamed(context, '/learn');
+                      Navigator.pop(context, true);
                       break;
                     case Routes.history:
-                      Navigator.popAndPushNamed(context, '/history');
+                      Navigator.popUntil(context, (route) => route.settings.name == '/review');
                       break;
                     case Routes.delete:
                       Navigator.pop(context, true);

@@ -13,6 +13,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fluent/common/utils/dialog_util.dart';
 
 import '../common/dio/dio.dart';
+import '../common/utils/data_utils.dart';
 import '../env/env.dart';
 import '../provider/promo_provider.dart';
 import '../provider/question_provider.dart';
@@ -267,7 +268,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                                     trackVisibility: true,
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0),
+                                          horizontal: 2.0),
                                       child: SingleChildScrollView(
                                         child: Column(
                                           children: [
@@ -295,7 +296,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                                                     style: const TextStyle(
                                                       fontSize: 16.0,
                                                       fontFamily: 'Poppins',
-                                                      fontWeight: FontWeight.w700,
+                                                      fontWeight: FontWeight.w600,
                                                       fontStyle: FontStyle.italic,
                                                       color: Colors.black,
                                                       wordSpacing: 2,
@@ -375,14 +376,26 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                           // 점수 영역 (totalScore)
                           Container(
                             width: MediaQuery.of(context).size.width / 1.8,
-                            height: 55.0,
-                            margin: const EdgeInsets.all(15),
+                            height: 50.0,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(25.0),
+                              boxShadow: [
+                                BoxShadow(color: Colors.grey[300]!,
+                                offset: const Offset(0, 1),
+                                  blurRadius: 2,
+                                  spreadRadius: 0,
+                                ),
+                              ]
+                            ),
+                            margin: const EdgeInsets.all(8.0),
                             child: SectionText(
                               text:
-                                  '🏆 Score ${widget.totalScore.toStringAsFixed(2)}',
+                                  '🏆 Score ${widget.totalScore.toStringAsFixed(1)}',
                               fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.blueAccent,
                             ),
                           ),
                         ],
@@ -495,7 +508,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                                 padding:
                                 const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25),
+                                  borderRadius: BorderRadius.circular(20.0),
                                 ),
                               ),
                               child: SectionText(
@@ -536,7 +549,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
 
       spans.add(
           TextSpan(
-              text: '$word ',
+              text: '${capitalize(word.toLowerCase())} ',
               style: TextStyle(
                 color: hasIncorrectChar ? Colors.red : Colors.grey,
                 fontSize: 15.0,

@@ -75,8 +75,9 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                       if (!mounted) return;
 
                       // result == false --> 취소 버튼 클릭
-                      if (result == null) {
+                      if (result == true) {
                         final int quizId = historyData[index].quizId;
+                        print('[LOG] NAVIGATE TO LEARN SCREEN');
                         Navigator.pushNamed(context, '/learn', arguments: {'quizId': quizId, 'historyId': historyData[index].historyId!});
                       }
                     },
