@@ -474,7 +474,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
 
                                   print('[LOG] 파일 크기 : $fileSize 바이트');
 
-                                  String uri = '${Env.aiEndpoint}/infer3/';
+                                  String uri = '${Env.aiEndpoint}/infer4/';
                                   FormData formData = FormData.fromMap({
                                     'files': await MultipartFile.fromFile(
                                       audioPath,
