@@ -23,8 +23,9 @@ class FeedbackScreen extends ConsumerStatefulWidget {
   String questionScript;
   String userScript;
   double totalScore;
+  bool isPromo;
   FeedbackScreen(
-      {super.key, required this.questionScript, required this.userScript, required this.totalScore});
+      {super.key, required this.questionScript, required this.userScript, required this.totalScore, this.isPromo = false});
 
   @override
   ConsumerState<FeedbackScreen> createState() => _FeedbackScreenState();
@@ -122,13 +123,13 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                 return;
               }
 
-              DialogUtil.showConfirmDialog(
-                context: context,
-                title: 'Do you really want to stop learning?',
-                subtitle: 'you can check your feedback at Review Page',
-                reverse: true,
-                route: Routes.main,
-              );
+              // DialogUtil.showConfirmDialog(
+              //   context: context,
+              //   title: 'Do you really want to stop learning?',
+              //   subtitle: 'you can check your feedback at Review Page',
+              //   reverse: true,
+              //   route: Routes.main,
+              // );
             },
             child: Stack(
               children: [
@@ -205,7 +206,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                                 ),
 
                                 // 문제 푼 개수
-                                if (promoState.isPromo)
+                                if (widget.isPromo)
                                   Row(
                                     children: [
                                       SectionText(
@@ -402,7 +403,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                       ),
 
                       // Exit 버튼 + Next 버튼
-                      if (promoState.isPromo)
+                      if (widget.isPromo)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -490,7 +491,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                             ),
                           ],
                         ),
-                        if (!promoState.isPromo)
+                        if (!widget.isPromo)
                           Container(
                             alignment: Alignment.bottomCenter,
                             width: MediaQuery.of(context).size.width,
@@ -499,7 +500,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                             child: TextButton(
                               onPressed: () async {
                                 // 퀴즈 종료 -> 홈 화면으로 이동
-                                Future.delayed(const Duration(milliseconds: 1000), () => Navigator.pop(context));
+                                Navigator.pop(context);
                               },
                               style: TextButton.styleFrom(
                                 backgroundColor:

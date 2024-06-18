@@ -93,7 +93,8 @@ Future<void> main() async {
                 final questionScript = argumentMap['questionScript'] as String;
                 final userScript = argumentMap['userScript'] as String;
                 final totalScore = argumentMap['totalScore'] as double;
-                return FeedbackScreen(questionScript: questionScript, userScript: userScript, totalScore: totalScore);
+                final isPromo = argumentMap['isPromo'] as bool;
+                return FeedbackScreen(questionScript: questionScript, userScript: userScript, totalScore: totalScore, isPromo: isPromo);
               },
               transitionsBuilder: (
                   BuildContext context,

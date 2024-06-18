@@ -39,7 +39,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
 
         if (_pickedData.isEmpty) {
           setState(() {
-            _pickedData = data;
+            _pickedData = data..sort((a, b) => b.exp - a.exp);
           });
         }
       }

@@ -36,8 +36,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final userModel = ref.watch(userModelProvider);
     if (userModel.isLoading) {
       return ref.watch(userRepositoryProvider).getUserInfo();
-    }
-    else {
+    } else {
       return userModel;
     }
   }
@@ -52,7 +51,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         future: getUserInfo(ref),
         builder: (_, AsyncSnapshot<UserModel> snapshot) {
           // API 통신 중일 때
-          if (snapshot.connectionState == ConnectionState.waiting && userModel.isLoading) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              userModel.isLoading) {
             return SingleChildScrollView(
               child: Column(
                 children: [
@@ -70,9 +70,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             children: [
                               // 복습하기 라벨
                               SectionText(
-                                  text: 'Review',
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w700),
+                                text: 'Review',
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                              ),
 
                               const SizedBox(height: 10),
 

@@ -61,9 +61,10 @@ abstract class UserRepository {
   @POST('/updateTier')
   @Headers({
     'accessToken': 'true',
+    'Content-Type': 'application/json',
   })
   Future<UserModel> promoProcess({
-    @Body() required double avgScore,
+    @Body() required Map<String, dynamic> body,
   });
 }
 

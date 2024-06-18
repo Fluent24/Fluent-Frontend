@@ -42,7 +42,10 @@ class UserModelStateNotifier extends StateNotifier<UserModel> {
   /// 승급 처리 후 사용자 티어 및 경험치 업데이트 처리 함수
   Future<void> updateUser(double avgScore) async {
     try {
-      final resp = await repository.promoProcess(avgScore: avgScore);
+      final Map<String, dynamic> requestData = {
+        'averageScore': avgScore,
+      };
+      final resp = await repository.promoProcess(body: requestData);
       state = resp.copyWith(isError: false, isLoading: false);
     }
     catch (e) {

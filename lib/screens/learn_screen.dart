@@ -199,8 +199,8 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                   ],
                                 ),
 
-                                // 문제 푼 개수 - 승급전일 때 활성화
-                                if (promoState.isPromo)
+                                // 문제 푼 개수 - 승급전, 학습하기일 때 활성화
+                                if (promoState.isPromo && widget.quizId == null)
                                   Row(
                                     children: [
                                       SectionText(
@@ -409,9 +409,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
-                                child: isRecording
-                                    ? waveForm(period: 1500)
-                                    : SectionText(
+                                child: SectionText(
                                         text: 'Check Pronunciation',
                                         fontSize: 20,
                                         fontWeight: FontWeight.w500,
@@ -474,7 +472,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
 
                                   print('[LOG] 파일 크기 : $fileSize 바이트');
 
-                                  String uri = '${Env.aiEndpoint}/infer4/';
+                                  String uri = '${Env.aiEndpoint}/infer2/';
                                   FormData formData = FormData.fromMap({
                                     'files': await MultipartFile.fromFile(
                                       audioPath,
@@ -501,8 +499,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                     // 사용자 발음 스크립트
                                     final userScript =
                                         jsonData['transcription'] as String;
-                                    final totalScore = (jsonData['total_score'])
-                                        .roundToDouble();
+                                    final totalScore = double.parse((jsonData['total_score']).toStringAsFixed(2));
 
                                     /// 히스토리에 문제 푼 기록을 등록한다.
                                     final historyManager =
@@ -535,8 +532,8 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                     print(
                                         '[LOG] [LEARN] ADD NEW HISTORY IN LIST');
 
-                                    // 승급전인 경우 기록한다.
-                                    if (promoState.isPromo) {
+                                    // 승급전 + 학습하기인 경우 기록한다.
+                                    if (promoState.isPromo && widget.quizId == null) {
                                       promoState.addScore(totalScore);
 
                                       final promoModel =
@@ -574,7 +571,8 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                               'questionScript':
                                                   questionModel.question,
                                               'userScript': userScript,
-                                              'totalScore': totalScore
+                                              'totalScore': totalScore,
+                                              'isPromo': promoState.isPromo && widget.quizId == null ? true : false,
                                             });
                                       },
                                     );
