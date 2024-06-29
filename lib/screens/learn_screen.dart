@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dio/dio.dart';
-import 'package:fluent/common/dio/dio.dart';
 import 'package:fluent/common/utils/data_utils.dart';
 import 'package:fluent/common/utils/dialog_util.dart';
 import 'package:fluent/env/env.dart';
@@ -13,7 +12,6 @@ import 'package:fluent/provider/history_provider.dart';
 import 'package:fluent/provider/promo_provider.dart';
 import 'package:fluent/provider/question_provider.dart';
 import 'package:fluent/provider/user_provider.dart';
-import 'package:fluent/repository/user_repository.dart';
 import 'package:fluent/widgets/text.dart';
 import 'package:fluent/widgets/waveform.dart';
 import 'package:flutter/material.dart';
@@ -133,7 +131,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                 context: context,
                 title: 'Do you really want to stop learning?',
                 subtitle:
-                    'You won\'t be able to get feedback on this sentence.',
+                'You won\'t be able to get feedback on this sentence.',
                 reverse: true,
                 route: widget.quizId == null ? Routes.main : Routes.history,
                 onPopLogic: onPopLogic,
@@ -214,7 +212,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                       SectionText(
                                         // learn 화면에서는 currentStep + 1, feedback 화면에서는 currentStep 보여주기
                                         text:
-                                            '${ref.read(promoModelProvider).currentStep + 1} / 3',
+                                        '${ref.read(promoModelProvider).currentStep + 1} / 3',
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -262,18 +260,18 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                     trackVisibility: true,
                                     child: SingleChildScrollView(
                                       padding: questionModel.question
-                                                  .split('.')
-                                                  .length >
-                                              3
+                                          .split('.')
+                                          .length >
+                                          3
                                           ? const EdgeInsets.only(right: 16.0)
                                           : const EdgeInsets.all(0),
                                       child: Text(
                                         questionModel.question,
                                         style: TextStyle(
                                           fontSize: questionModel.question
-                                                      .split('.')
-                                                      .length >
-                                                  3
+                                              .split('.')
+                                              .length >
+                                              3
                                               ? 16.0
                                               : 20.0,
                                           fontFamily: 'Poppins',
@@ -292,7 +290,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                 // 다시 듣기 / 다음 문제 / 음성 녹음
                                 Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
+                                  MainAxisAlignment.spaceAround,
                                   children: [
                                     // 다시 듣기
                                     ElevatedButton(
@@ -305,7 +303,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                       },
                                       style: TextButton.styleFrom(
                                         backgroundColor:
-                                            Colors.blueAccent.withOpacity(0.9),
+                                        Colors.blueAccent.withOpacity(0.9),
                                         foregroundColor: Colors.white,
                                         iconColor: Colors.white,
                                         elevation: 1,
@@ -313,7 +311,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                             horizontal: 40, vertical: 5),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(45),
+                                          BorderRadius.circular(45),
                                         ),
                                         minimumSize: const Size(120, 0),
                                       ),
@@ -344,7 +342,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                         backgroundColor: isRecording
                                             ? Colors.white
                                             : Colors.blueAccent
-                                                .withOpacity(0.9),
+                                            .withOpacity(0.9),
                                         foregroundColor: Colors.white,
                                         iconColor: Colors.white,
                                         elevation: 1,
@@ -352,7 +350,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                             horizontal: 40, vertical: 5),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(45),
+                                          BorderRadius.circular(45),
                                         ),
                                         minimumSize: const Size(120, 0),
                                       ),
@@ -369,7 +367,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                           const SizedBox(height: 3),
                                           SectionText(
                                             text:
-                                                isRecording ? 'Stop' : 'Speak',
+                                            isRecording ? 'Stop' : 'Speak',
                                             fontSize: 9,
                                             fontWeight: FontWeight.w700,
                                             fontStyle: FontStyle.italic,
@@ -391,32 +389,32 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                       // 녹음본 확인하기 버튼 (check)
                       audioPath != ''
                           ? Container(
-                              alignment: Alignment.bottomCenter,
-                              height: MediaQuery.of(context).size.height / 1.2,
-                              margin: const EdgeInsets.all(15),
-                              child: TextButton(
-                                onPressed: () {
-                                  // 녹음 파일 재생
-                                  playRecording();
-                                },
-                                style: TextButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: Colors.white,
-                                  minimumSize: const Size(double.infinity, 0),
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                ),
-                                child: SectionText(
-                                        text: 'Check Pronunciation',
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.lightBlueAccent,
-                                      ),
-                              ),
-                            )
+                        alignment: Alignment.bottomCenter,
+                        height: MediaQuery.of(context).size.height / 1.2,
+                        margin: const EdgeInsets.all(15),
+                        child: TextButton(
+                          onPressed: () {
+                            // 녹음 파일 재생
+                            playRecording();
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(double.infinity, 0),
+                            padding:
+                            const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: SectionText(
+                            text: 'Check Pronunciation',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.lightBlueAccent,
+                          ),
+                        ),
+                      )
                           : Container(),
 
                       // Submit 버튼
@@ -498,12 +496,12 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                         '[LOG] [LEARN] AI RESPONSE: $jsonData');
                                     // 사용자 발음 스크립트
                                     final userScript =
-                                        jsonData['transcription'] as String;
+                                    jsonData['transcription'] as String;
                                     final totalScore = double.parse((jsonData['total_score']).toStringAsFixed(2));
 
                                     /// 히스토리에 문제 푼 기록을 등록한다.
                                     final historyManager =
-                                        ref.read(historyModelProvider.notifier);
+                                    ref.read(historyModelProvider.notifier);
 
                                     print('[LOG] [LEARN] FETCH HISTORY LIST');
 
@@ -518,8 +516,8 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
 
                                     // 현재 시간 yyyy-MM-dd 로 변경
                                     final String now =
-                                        DateTimeUtil.formatDateTime(
-                                            DateTime.now());
+                                    DateTimeUtil.formatDateTime(
+                                        DateTime.now());
                                     final newHistoryModel = HistoryModel(
                                       score: totalScore,
                                       solverDate: now,
@@ -537,13 +535,13 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                       promoState.addScore(totalScore);
 
                                       final promoModel =
-                                          ref.read(promoModelProvider);
+                                      ref.read(promoModelProvider);
                                       // 승급 심사
                                       if (promoModel.scores.length == 3) {
                                         ref
                                             .read(userModelProvider.notifier)
                                             .updateUser(
-                                                promoModel.averageScore);
+                                            promoModel.averageScore);
                                         promoState.reset(); // 승급전 완료 -> 초기화
                                       }
 
@@ -563,13 +561,13 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                     /// Navigator로 이동한다.
                                     Future.delayed(
                                       const Duration(milliseconds: 500),
-                                      () {
+                                          () {
                                         if (!mounted) return;
                                         Navigator.pushReplacementNamed(
                                             context, '/feedback',
                                             arguments: {
                                               'questionScript':
-                                                  questionModel.question,
+                                              questionModel.question,
                                               'userScript': userScript,
                                               'totalScore': totalScore,
                                               'isPromo': promoState.isPromo && widget.quizId == null ? true : false,
@@ -744,57 +742,23 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
     }
   }
 
-  Future _sendSTT(String filePath) async {
-    try {
-      print('전송하기');
-      final sttUrl = Uri.parse('${Env.aiEndpoint}/infer/');
-
-      print('PATH $filePath');
-      var request = http.MultipartRequest('POST', sttUrl);
-      request.files.add(await http.MultipartFile.fromPath('files', filePath));
-
-      final streamedResponse = await request.send();
-
-      if (streamedResponse.statusCode == 200) {
-        print('File upload Success');
-        http.Response response =
-            await http.Response.fromStream(streamedResponse);
-
-        // JSON 응답 파싱
-        var responseData = json.decode(response.body);
-        print(responseData);
-        // if (responseData != null && responseData['total_score'] != null) {
-        //   double score = responseData['total_score'];
-        //   print("Score: $score");
-        // }
-        // else {
-        //   print("ERROR - No text converted or wrong JSON format: ${responseData}");
-        // }
-      } else {
-        print("뭔가 문제 있음: ${streamedResponse.statusCode}");
-      }
-    } catch (error) {
-      print('ERROR send file: $error');
-    }
-  }
-
-  Future<void> convertM4AToWav(String inputPath, String outputPath) async {
-    // FFmpeg 명령 이용하여 m4a 파일 -> wav 파일로 변환
-    String command =
-        "-i $inputPath -vn -acodec pcm_s161e -ar 44100 -ac 2 $outputPath";
-
-    // FFmpeg 명령 실행
-    FFmpegKit.execute(command).then((session) async {
-      final returnCode = await session.getReturnCode();
-
-      // 성공적으로 실행되었는지 확인
-      if (ReturnCode.isSuccess(returnCode)) {
-        print('LOG - Conversion successful: $outputPath');
-      } else if (ReturnCode.isCancel(returnCode)) {
-        print('LOG - Conversion cancelled');
-      } else {
-        print('LOG - Conversion failed with return code: $returnCode}');
-      }
-    });
-  }
+// Future<void> convertM4AToWav(String inputPath, String outputPath) async {
+//   // FFmpeg 명령 이용하여 m4a 파일 -> wav 파일로 변환
+//   String command =
+//       "-i $inputPath -vn -acodec pcm_s161e -ar 44100 -ac 2 $outputPath";
+//
+//   // FFmpeg 명령 실행
+//   FFmpegKit.execute(command).then((session) async {
+//     final returnCode = await session.getReturnCode();
+//
+//     // 성공적으로 실행되었는지 확인
+//     if (ReturnCode.isSuccess(returnCode)) {
+//       print('LOG - Conversion successful: $outputPath');
+//     } else if (ReturnCode.isCancel(returnCode)) {
+//       print('LOG - Conversion cancelled');
+//     } else {
+//       print('LOG - Conversion failed with return code: $returnCode}');
+//     }
+//   });
+// }
 }
