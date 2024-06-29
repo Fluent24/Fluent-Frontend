@@ -19,16 +19,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:record/record.dart';
 
-<<<<<<< HEAD
-import '../env/env.dart';
-
-class LearnScreen extends StatefulWidget {
-  const LearnScreen({super.key});
-=======
 class LearnScreen extends ConsumerStatefulWidget {
   int? quizId; // 복습하기를 통해 이동한 경우 quizId가 부여됨
   LearnScreen({super.key, this.quizId});
->>>>>>> 6c7d318 (Save changes before rebase continue (3/11))
 
   @override
   ConsumerState<LearnScreen> createState() => _LearnScreenState();
