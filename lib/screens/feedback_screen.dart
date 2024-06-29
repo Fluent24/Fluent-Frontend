@@ -198,7 +198,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                                         borderRadius: BorderRadius.circular(50),
                                       ),
                                       child: Image.asset(
-                                        'assets/images/tiers/silver.png',
+                                        'assets/images/tiers/${questionModel.tier}.png',
                                         scale: 50,
                                       ),
                                     ),
