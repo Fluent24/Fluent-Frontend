@@ -1,64 +1,50 @@
 import 'dart:io';
 
-import 'package:fluent/common/image_util.dart';
-import 'package:fluent/repository/user_info_repository.dart';
+import 'package:fluent/common/utils/image_util.dart';
 import 'package:fluent/widgets/text.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 /// 사진 프로필 - 이미지 url 또는 캐싱으로 받은 이미지 표시
-class CustomProfile extends StatelessWidget {
-  final double size;
-  File image;
-  CustomProfile({super.key, required this.size, required this.image});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(360),
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: Image.file(
-          image,
-          fit: BoxFit.cover,
-        ),
+Widget _customProfile({required double size, required File image}) {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(360),
+    child: SizedBox(
+      width: size,
+      height: size,
+      child: Image.file(
+        image,
+        fit: BoxFit.cover,
       ),
-    );
-  }
+    ),
+  );
 }
 
 /// 기본 프로필 위젯
-class DefaultProfile extends StatelessWidget {
-  final double size;
-  DefaultProfile({super.key, required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(360),
-      child: Stack(
-        children: [
-          Container(
-            width: size,
-            height: size,
-            color: Colors.blueGrey.withOpacity(0.7),
-          ),
-          Positioned.fill(
-            bottom: -3,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: FaIcon(
-                FontAwesomeIcons.solidUser,
-                size: size * 0.75,
-                color: Colors.white70,
-              ),
+Widget _defaultProfile({required double size}) {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(360),
+    child: Stack(
+      children: [
+        Container(
+          width: size,
+          height: size,
+          color: Colors.blueGrey.withOpacity(0.7),
+        ),
+        Positioned.fill(
+          bottom: -3,
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: FaIcon(
+              FontAwesomeIcons.solidUser,
+              size: size * 0.75,
+              color: Colors.white70,
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 }
 
 /// 사용자 프로필 이미지 위젯
@@ -79,7 +65,7 @@ class ProfileImage extends StatefulWidget {
 
 class _ProfileImageState extends State<ProfileImage> {
   final ImageManager _imageManager = ImageManager();
-  final UserInfoRepository _userInfoRepository = UserInfoRepository();
+  final String profileCacheKey = 'tempImageUrl';
 
   @override
   Widget build(BuildContext context) {
@@ -104,8 +90,8 @@ class _ProfileImageState extends State<ProfileImage> {
           ],
         ),
         child: widget.image != null
-            ? CustomProfile(size: widget.size, image: widget.image!)
-            : DefaultProfile(size: widget.size),
+            ? _customProfile(size: widget.size, image: widget.image!)
+            : _defaultProfile(size: widget.size),
       ),
     );
   }
@@ -118,8 +104,9 @@ class _ProfileImageState extends State<ProfileImage> {
           return Center(
             child: Container(
               width: MediaQuery.of(context).size.width,
-              height:
-                  widget.image == null ? 170 : 220, // 기본 이미지인 경우, 기본 이미지 설정 메뉴 필요 없음
+              height: widget.image == null
+                  ? 170
+                  : 220, // 기본 이미지인 경우, 기본 이미지 설정 메뉴 필요 없음
               margin: const EdgeInsets.symmetric(horizontal: 32.0),
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               decoration: ShapeDecoration(
@@ -150,7 +137,11 @@ class _ProfileImageState extends State<ProfileImage> {
                         File? img = await _imageManager.getCameraImage();
                         setState(() async {
                           widget.image = img;
-                          _userInfoRepository.writeUserInfo(type: InfoType.profile, data: img?.path ?? 'null');
+
+                          // 이미지가 선택된 경우 이미지 경로 캐시에 저장
+                          if (img != null) {
+                            ImageManager.setCacheImage(profileCacheKey, img.path);
+                          }
                         });
                       },
                       style:
@@ -174,7 +165,10 @@ class _ProfileImageState extends State<ProfileImage> {
                         File? img = await _imageManager.getGalleryImage();
                         setState(() {
                           widget.image = img;
-                          _userInfoRepository.writeUserInfo(type: InfoType.profile, data: img?.path ?? 'null');
+                          // 이미지가 선택된 경우 이미지 경로 캐시에 저장
+                          if (img != null) {
+                            ImageManager.setCacheImage(profileCacheKey, img.path);
+                          }
                         });
                       },
                       style:
@@ -199,7 +193,8 @@ class _ProfileImageState extends State<ProfileImage> {
                           // 프로필 이미지 삭제
                           setState(() {
                             widget.image = null;
-                            _userInfoRepository.writeUserInfo(type: InfoType.profile, data: 'null');
+                            // 이미지 경로 캐시에서 삭제
+                            ImageManager.deleteCacheImage(profileCacheKey);
                           });
                         },
                         style:

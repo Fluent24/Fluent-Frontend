@@ -1,4 +1,3 @@
-import 'package:fluent/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum InfoType {
@@ -6,9 +5,11 @@ enum InfoType {
   profile,
   rank,
   favorites,
+  exp,
+  email,
 }
 
-class UserInfoRepository {
+class UserCacheRepository {
   // shared_preferences에 이미지 url, 닉네임, 관심사 저장
 
   // 캐시에 사용자 정보 저장 - 덮어쓰기
@@ -28,6 +29,12 @@ class UserInfoRepository {
         break;
       case InfoType.favorites:
         await prefs.setStringList('favorites', data);
+        break;
+      case InfoType.email:
+        await prefs.setString('email', data);
+        break;
+      case InfoType.exp:
+        await prefs.setString('exp', data);
         break;
       default:
         break;
@@ -51,6 +58,12 @@ class UserInfoRepository {
       case InfoType.favorites:
         data = prefs.getStringList('favorites');
         break;
+      case InfoType.email:
+        data = prefs.getString('email');
+        break;
+      case InfoType.exp:
+        data = prefs.getString('exp');
+        break;
       default:
         break;
     }
@@ -66,5 +79,6 @@ class UserInfoRepository {
     await prefs.remove('profilePictureUrl');
     await prefs.remove('rank');
     await prefs.remove('favorites');
+    await prefs.remove('email');
   }
 }

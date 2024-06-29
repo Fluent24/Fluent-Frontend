@@ -28,28 +28,25 @@ class _ProgressBarState extends State<ProgressBar> {
             ),
           ),
         ),
-
         const SizedBox(height: 2),
-
         LinearPercentIndicator(
           padding: EdgeInsets.zero,
           percent: widget.percent,
-          lineHeight: 24,
+          lineHeight: 24.0,
           backgroundColor: Colors.white.withOpacity(0.7),
-          progressColor: widget.barColor,
+          progressColor:
+              widget.percent == 1 ? Colors.lightGreenAccent : widget.barColor,
           barRadius: const Radius.circular(20),
         ),
-
         const SizedBox(height: 5),
-
         Container(
           alignment: FractionalOffset(widget.percent, 1 - widget.percent),
           child: FractionallySizedBox(
             child: SectionText(
               text: '${(widget.percent * 100).toInt()}%',
-                fontSize: 12.0,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+              fontSize: 12.0,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
             ),
           ),
         )

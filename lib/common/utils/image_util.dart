@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// 카메라로 사진 촬영 혹은 갤러리에서 이미지를 가져오는 클래스
 class ImageManager {
@@ -34,10 +35,23 @@ class ImageManager {
     return null;
   }
 
-  /// 캐시에 이미지 있는 경우 가져오는 함수
-  // 로직 작성해야 함
-  Future<File?> getCacheImage() async {
-    File? image;
-    return image;
+  /// 캐시에 있는 이미지 경로를 가져오는 함수
+  static Future<String?> getCacheImage(String key) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? imagePath = prefs.getString(key);
+
+    return imagePath;
+  }
+
+  /// 이미지 경로를 캐시에 저장하는 함수
+  static Future<void> setCacheImage(String key, String imagePath) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, imagePath);
+  }
+
+  /// 캐시에서 이미지 경로 삭제
+  static Future<void> deleteCacheImage(String key) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(key);
   }
 }

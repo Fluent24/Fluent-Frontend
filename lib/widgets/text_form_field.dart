@@ -60,11 +60,11 @@ class _NickNameTextFormFieldState extends State<NickNameTextFormField> {
             counterText: '', // 하단 카운터 표시 제거
             filled: true,
             fillColor: Colors.white.withOpacity(0.7),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             errorStyle: const TextStyle(
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w600,
-              fontSize: 12.0,
+              fontSize: 11.0,
             ),
             errorMaxLines: 1,
           ),
@@ -88,7 +88,6 @@ class _NickNameTextFormFieldState extends State<NickNameTextFormField> {
           onFieldSubmitted: (value) {
             // 입력이 유효한 경우에만 TextFormField 비활성화 및 키보드 내림
             if (widget.formKey?.currentState?.validate() ?? false) {
-              print('LOG - ${widget.formKey?.currentState?.validate()}');
               setState(() {
                 canEdit = false;
                 FocusScope.of(context).unfocus();

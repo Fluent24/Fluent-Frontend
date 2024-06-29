@@ -12,4 +12,7 @@ final class Env {
 
   @EnviedField(varName: 'SERVER_ENDPOINT', obfuscate: true)
   static final String serverEndpoint = _Env.serverEndpoint;
+
+  @EnviedField(varName: 'AI_ENDPOINT', obfuscate: true)
+  static final String aiEndpoint = _Env.aiEndpoint;
 }

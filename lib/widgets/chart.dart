@@ -2,7 +2,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class WeeklyLineChart extends StatefulWidget {
-  const WeeklyLineChart({super.key});
+  List<String> weeks;
+  List<double> scores;
+  WeeklyLineChart({super.key, required this.weeks, required this.scores});
 
   @override
   State<WeeklyLineChart> createState() => _WeeklyLineChartState();
@@ -35,18 +37,24 @@ class _WeeklyLineChartState extends State<WeeklyLineChart> {
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w600,
       fontFamily: 'Poppins',
-      fontSize: 16.0,
+      fontSize: 12.0,
       color: Colors.black,
     );
     Widget text;
     switch (value.toInt()) {
       case 1:
-        text = const Text('4월', style: style);
+        text = Text(widget.weeks[1], style: style);
+        break;
+      case 2:
+        text = Text(widget.weeks[2], style: style);
         break;
       case 3:
-        text = const Text('5월', style: style);
+        text = Text(widget.weeks[3], style: style);
+        break;
+      case 4:
+        text = Text(widget.weeks[4], style: style);
         break;
       default:
         text = const Text('', style: style);
@@ -61,27 +69,27 @@ class _WeeklyLineChartState extends State<WeeklyLineChart> {
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w600,
       fontFamily: 'Poppins',
       fontSize: 14.0,
       color: Colors.black,
     );
     String text;
     switch (value.toInt()) {
-      case 1:
-        text = '1';
-        break;
       case 2:
         text = '2';
-        break;
-      case 3:
-        text = '3';
         break;
       case 4:
         text = '4';
         break;
-      case 5:
-        text = '5';
+      case 6:
+        text = '6';
+        break;
+      case 8:
+        text = '8';
+        break;
+      case 10:
+        text = '10';
         break;
       default:
         return Container();
@@ -145,20 +153,20 @@ class _WeeklyLineChartState extends State<WeeklyLineChart> {
         ),
       ),
       minX: 0,
-      maxX: 4,
+      maxX: 5,
       minY: 0,
-      maxY: 5,
+      maxY: 10,
       lineBarsData: [
         // 좌표에 찍을 데이터
         LineChartBarData(
-          spots: const [
-            FlSpot(0, 1.5),
-            FlSpot(1, 2),
-            FlSpot(2, 4),
-            FlSpot(3, 2.5),
-            FlSpot(4, 3.5),
+          spots: [
+            FlSpot(0, widget.scores[0]),
+            FlSpot(1, widget.scores[1]),
+            FlSpot(2, widget.scores[2]),
+            FlSpot(3, widget.scores[3]),
+            FlSpot(4, widget.scores[4]),
           ],
-          isCurved: true,
+          isCurved: false,
           gradient: LinearGradient(
             colors: gradientColors,
           ),

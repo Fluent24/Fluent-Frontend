@@ -1,49 +1,56 @@
 // 학습하기 화면
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:audio_wave/audio_wave.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter/return_code.dart';
-import 'package:fluent/common/dialog_util.dart';
+import 'package:dio/dio.dart';
+import 'package:fluent/common/dio/dio.dart';
+import 'package:fluent/common/utils/data_utils.dart';
+import 'package:fluent/common/utils/dialog_util.dart';
+import 'package:fluent/env/env.dart';
+import 'package:fluent/models/history.dart';
+import 'package:fluent/models/question.dart';
+import 'package:fluent/provider/history_provider.dart';
+import 'package:fluent/provider/promo_provider.dart';
+import 'package:fluent/provider/question_provider.dart';
+import 'package:fluent/provider/user_provider.dart';
+import 'package:fluent/repository/user_repository.dart';
 import 'package:fluent/widgets/text.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fluent/widgets/waveform.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as p;
 
+<<<<<<< HEAD
 import '../env/env.dart';
 
 class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
+=======
+class LearnScreen extends ConsumerStatefulWidget {
+  int? quizId; // 복습하기를 통해 이동한 경우 quizId가 부여됨
+  LearnScreen({super.key, this.quizId});
+>>>>>>> 6c7d318 (Save changes before rebase continue (3/11))
 
   @override
-  State<LearnScreen> createState() => _LearnScreenState();
+  ConsumerState<LearnScreen> createState() => _LearnScreenState();
 }
 
-class _LearnScreenState extends State<LearnScreen> {
-  // 2문장
-  String testScript =
-      "Watching the LA Dodgers baseball game is one of my dreams to achieve. I really want to go watch the game during this schedule.";
-  //  3문장
-  // String testScript =
-  //     "Watching the LA Dodgers baseball game is one of my dreams to achieve. I really want to go watch the game during this schedule. I really hope it doesn't rain on the day I go to see it. I really want to go watch the game during this schedule. I really hope it doesn't rain on the day I go to see it.";
-
+class _LearnScreenState extends ConsumerState<LearnScreen> {
   // 녹음 및 음성 파일 재생 컨트롤 변수
   late Record audioRecord;
   late AudioPlayer audioPlayer;
   bool isRecording = false;
   String audioPath = '';
+  bool isLoadingQuestion = true;
+  bool isSubmit = false;
+  QuestionModel questionModel = QuestionModel.empty();
 
   @override
   void initState() {
     audioPlayer = AudioPlayer();
     audioRecord = Record();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadQuestion();
+    });
     super.initState();
   }
 
@@ -54,387 +61,599 @@ class _LearnScreenState extends State<LearnScreen> {
     super.dispose();
   }
 
+  void loadQuestion() async {
+    try {
+      // 학습하기 모드
+      if (widget.quizId == null) {
+        print('[LOG] LEARNING MODE');
+        await ref.watch(questionModelProvider.notifier).getQuestion().then((_) {
+          setState(() {
+            questionModel = ref.read(questionModelProvider);
+            isLoadingQuestion = false;
+          });
+        });
+      }
+      // 복습하기 모드
+      else {
+        print('[LOG] REVIEW MODE');
+        await ref
+            .watch(questionModelProvider.notifier)
+            .getQuestionWithId(widget.quizId!)
+            .then((_) {
+          setState(() {
+            questionModel = ref.read(questionModelProvider);
+            isLoadingQuestion = false;
+          });
+        });
+      }
+    } catch (e) {
+      print('[LOG] Failed to fetch question in page: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: const Color(0xFFE7EEF7),
-        body: PopScope(
-          canPop: false,
-          onPopInvoked: (didPop) async {
-            // showDialog
-            await showConfirmDialog(
-              context: context,
-              title: 'Do you really want to stop learning?',
-              subtitle: 'You won\'t be able to get feedback on this sentence.',
-              reverse: true,
-              route: Routes.main,
-            );
-          },
-          child: Stack(
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: Stack(
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      padding: const EdgeInsets.all(20),
-                    ),
-                    Column(
-                      children: [
-                        // 난이도
-                        Container(
-                          width: MediaQuery.of(context).size.width,
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 25),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 25, vertical: 15),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                              color: Colors.blueAccent,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.blueAccent.withOpacity(0.5),
-                                  offset: const Offset(0, 3),
-                                  blurRadius: 5,
-                                  spreadRadius: 0,
-                                )
-                              ]),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Level',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.3),
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
-                                    child: Image.asset(
-                                      'assets/images/ranks/silver.png',
-                                      scale: 50,
-                                    ),
-                                  ),
-                                ],
-                              ),
+    final userData = ref.watch(userModelProvider);
+    final promoState = ref.watch(promoModelProvider.notifier);
 
-                              // 문제 푼 개수
-                              Row(
-                                children: [
-                                  Text(
-                                    'Daily Achievement',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w600,
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.white.withOpacity(0.5),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  const Text(
-                                    '2 / 5',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+    // API로부터 데이터를 가져오는 중일 때
+    if (isLoadingQuestion || userData.isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: waveForm(),
+        ),
+      );
+    } else if (questionModel.isError || userData.isError) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: SectionText(
+            text: 'No Data',
+          ),
+        ),
+      );
+    } else {
+      return SafeArea(
+        child: Scaffold(
+          backgroundColor: const Color(0xFFE7EEF7),
+          body: PopScope(
+            canPop: false,
+            onPopInvoked: (didPop) {
+              if (!Navigator.canPop(context)) {
+                // Navigator가 lock 상태인 경우 dialog를 열지 않음
+                return;
+              }
 
-                        // 문제 스크립트 영역
-                        Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height / 1.7,
-                          margin: const EdgeInsets.all(20),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 35.0, vertical: 25.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                'Listen & Speak',
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w900,
-                                  fontStyle: FontStyle.italic,
-                                  color: Colors.black,
-                                ),
-                              ),
+              void onPopLogic() {
+                if (ref.read(promoModelProvider).currentStep < 3) {
+                  promoState.reset();
+                }
+                ref.read(questionModelProvider.notifier).reset();
+              }
 
-                              const SizedBox(height: 10.0),
-
-                              // 문제 --> 문제 길이에 따라 fontSize 조절하는 작업 필요
-                              Expanded(
-                                child: Scrollbar(
-                                  thumbVisibility: true,
-                                  radius: const Radius.circular(10.0),
-                                  thickness: 5.0,
-                                  trackVisibility: true,
-                                  child: SingleChildScrollView(
-                                    padding: testScript.split('.').length > 3
-                                        ? const EdgeInsets.only(right: 16.0)
-                                        : const EdgeInsets.all(0),
-                                    child: Text(
-                                      testScript,
+              // showDialog
+              DialogUtil.showConfirmDialog(
+                context: context,
+                title: 'Do you really want to stop learning?',
+                subtitle:
+                    'You won\'t be able to get feedback on this sentence.',
+                reverse: true,
+                route: Routes.main,
+                onPopLogic: onPopLogic,
+              );
+            },
+            child: Stack(
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        padding: const EdgeInsets.all(20),
+                      ),
+                      Column(
+                        children: [
+                          // 난이도
+                          Container(
+                            width: MediaQuery.of(context).size.width,
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 25),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 25, vertical: 15),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                color: Colors.blueAccent,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.blueAccent.withOpacity(0.5),
+                                    offset: const Offset(0, 3),
+                                    blurRadius: 5,
+                                    spreadRadius: 0,
+                                  )
+                                ]),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'Level',
                                       style: TextStyle(
-                                        fontSize:
-                                            testScript.split('.').length > 3
-                                                ? 16.0
-                                                : 20.0,
+                                        fontSize: 20,
                                         fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w500,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.3),
+                                        borderRadius: BorderRadius.circular(50),
+                                      ),
+                                      child: Image.asset(
+                                        'assets/images/tiers/${questionModel.tier}.png',
+                                        scale: 50,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                // 문제 푼 개수 - 승급전일 때 활성화
+                                if (promoState.isPromo)
+                                  Row(
+                                    children: [
+                                      SectionText(
+                                        text: 'Promo',
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
                                         fontStyle: FontStyle.italic,
-                                        color: Colors.black,
-                                        height: 2, // 줄간격
+                                        color: Colors.white.withOpacity(0.5),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      SectionText(
+                                        // learn 화면에서는 currentStep + 1, feedback 화면에서는 currentStep 보여주기
+                                        text:
+                                            '${ref.read(promoModelProvider).currentStep + 1} / 3',
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ),
+
+                          // 문제 스크립트 영역
+                          Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height / 1.7,
+                            margin: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 35.0, vertical: 25.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'Listen & Speak',
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w900,
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.black,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 10.0),
+
+                                // 문제 --> 문제 길이에 따라 fontSize 조절하는 작업 필요
+                                Expanded(
+                                  child: Scrollbar(
+                                    thumbVisibility: true,
+                                    radius: const Radius.circular(10.0),
+                                    thickness: 5.0,
+                                    trackVisibility: true,
+                                    child: SingleChildScrollView(
+                                      padding: questionModel.question
+                                                  .split('.')
+                                                  .length >
+                                              3
+                                          ? const EdgeInsets.only(right: 16.0)
+                                          : const EdgeInsets.all(0),
+                                      child: Text(
+                                        questionModel.question,
+                                        style: TextStyle(
+                                          fontSize: questionModel.question
+                                                      .split('.')
+                                                      .length >
+                                                  3
+                                              ? 16.0
+                                              : 20.0,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w500,
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.black,
+                                          height: 2, // 줄간격
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
 
-                              const SizedBox(height: 30),
+                                const SizedBox(height: 30),
 
-                              // 다시 듣기 / 다음 문제 / 음성 녹음
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  // 다시 듣기
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      // 레퍼런스 음성 파일 다시 재생하기
-                                    },
-                                    style: TextButton.styleFrom(
-                                      backgroundColor:
-                                          Colors.blueAccent.withOpacity(0.9),
-                                      foregroundColor: Colors.white,
-                                      iconColor: Colors.white,
-                                      elevation: 1,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 40, vertical: 5),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(45),
+                                // 다시 듣기 / 다음 문제 / 음성 녹음
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    // 다시 듣기
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        // 레퍼런스 음성 파일 다시 재생하기
+                                      },
+                                      style: TextButton.styleFrom(
+                                        backgroundColor:
+                                            Colors.blueAccent.withOpacity(0.9),
+                                        foregroundColor: Colors.white,
+                                        iconColor: Colors.white,
+                                        elevation: 1,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 40, vertical: 5),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(45),
+                                        ),
+                                        minimumSize: const Size(120, 0),
                                       ),
-                                      minimumSize: const Size(120, 0),
-                                    ),
-                                    child: const Column(
-                                      children: [
-                                        FaIcon(FontAwesomeIcons.headphones),
-                                        SizedBox(height: 3),
-                                        Text(
-                                          'Listen',
-                                          style: TextStyle(
-                                            fontSize: 9,
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w700,
-                                            fontStyle: FontStyle.italic,
-                                            color: Colors.white,
+                                      child: const Column(
+                                        children: [
+                                          FaIcon(FontAwesomeIcons.headphones),
+                                          SizedBox(height: 3),
+                                          Text(
+                                            'Listen',
+                                            style: TextStyle(
+                                              fontSize: 9,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w700,
+                                              fontStyle: FontStyle.italic,
+                                              color: Colors.white,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  // 녹음하기 (Speak)
-                                  ElevatedButton(
-                                    onPressed: isRecording
-                                        ? stopRecording
-                                        : startRecording,
-                                    style: TextButton.styleFrom(
-                                      backgroundColor: isRecording
-                                          ? Colors.white
-                                          : Colors.blueAccent.withOpacity(0.9),
-                                      foregroundColor: Colors.white,
-                                      iconColor: Colors.white,
-                                      elevation: 1,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 40, vertical: 5),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(45),
+                                        ],
                                       ),
-                                      minimumSize: const Size(120, 0),
                                     ),
-                                    child: Column(
-                                      children: [
-                                        FaIcon(
-                                          isRecording
-                                              ? FontAwesomeIcons.stop
-                                              : FontAwesomeIcons.microphone,
-                                          color: isRecording
-                                              ? Colors.red
-                                              : Colors.white,
+
+                                    // 녹음하기 (Speak)
+                                    ElevatedButton(
+                                      onPressed: isRecording
+                                          ? stopRecording
+                                          : startRecording,
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: isRecording
+                                            ? Colors.white
+                                            : Colors.blueAccent
+                                                .withOpacity(0.9),
+                                        foregroundColor: Colors.white,
+                                        iconColor: Colors.white,
+                                        elevation: 1,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 40, vertical: 5),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(45),
                                         ),
-                                        const SizedBox(height: 3),
-                                        Text(
-                                          isRecording ? 'Stop' : 'Speak',
-                                          style: TextStyle(
+                                        minimumSize: const Size(120, 0),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          FaIcon(
+                                            isRecording
+                                                ? FontAwesomeIcons.stop
+                                                : FontAwesomeIcons.microphone,
+                                            color: isRecording
+                                                ? Colors.red
+                                                : Colors.white,
+                                          ),
+                                          const SizedBox(height: 3),
+                                          SectionText(
+                                            text:
+                                                isRecording ? 'Stop' : 'Speak',
                                             fontSize: 9,
-                                            fontFamily: 'Poppins',
                                             fontWeight: FontWeight.w700,
                                             fontStyle: FontStyle.italic,
                                             color: isRecording
                                                 ? Colors.black
                                                 : Colors.white,
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    // 녹음본 확인하기 버튼 (check)
-                    audioPath != ''
-                        ? Container(
-                            alignment: Alignment.bottomCenter,
-                            height: MediaQuery.of(context).size.height / 1.2,
-                            margin: const EdgeInsets.all(15),
-                            child: TextButton(
-                              onPressed: () {
-                                // 녹음 파일 재생
-                                playRecording();
-                              },
-                              style: TextButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.white,
-                                minimumSize: const Size(double.infinity, 0),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
+                                  ],
                                 ),
-                              ),
-                              child: isRecording
-                                  ? waveForm()
-                                  : const Text(
-                                      'Check Pronunciation',
-                                      style: TextStyle(
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // 녹음본 확인하기 버튼 (check)
+                      audioPath != ''
+                          ? Container(
+                              alignment: Alignment.bottomCenter,
+                              height: MediaQuery.of(context).size.height / 1.2,
+                              margin: const EdgeInsets.all(15),
+                              child: TextButton(
+                                onPressed: () {
+                                  // 녹음 파일 재생
+                                  playRecording();
+                                },
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.white,
+                                  minimumSize: const Size(double.infinity, 0),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                child: isRecording
+                                    ? waveForm(period: 1500)
+                                    : SectionText(
+                                        text: 'Check Pronunciation',
                                         fontSize: 20,
-                                        fontFamily: 'Poppins',
                                         fontWeight: FontWeight.w500,
                                         color: Colors.lightBlueAccent,
                                       ),
+                              ),
+                            )
+                          : Container(),
+
+                      // Submit 버튼
+                      Container(
+                        alignment: Alignment.bottomCenter,
+                        height: MediaQuery.of(context).size.height / 1.1,
+                        margin: const EdgeInsets.all(15),
+                        child: TextButton(
+                          onPressed: () async {
+                            // 사용자의 녹음 파일 존재하는 경우
+                            if (audioPath != '') {
+                              setState(() {
+                                isSubmit = true;
+                              });
+
+                              /// 녹음 파일 제출 후 피드백 화면으로 이동 과정
+
+                              /// 발음 평가 AI 모델로부터 점수와 사용자 스크립트를 받는다.
+                              /*
+                                curl -X POST ip/infer2/ -H "Content-Type:multipart/form-data" -F "files=/절대경로/test.m4a"
+                               */
+
+                              print('[LOG] AUDIO FILE PATH : $audioPath');
+                              final dio = Dio();
+                              // final dio = ref.read(dioProvider);
+
+                              dio.options = BaseOptions(
+                                connectTimeout: const Duration(seconds: 5),
+                                receiveTimeout: const Duration(seconds: 25),
+                              );
+
+                              int maxRetry = 3; // 재시도 횟수
+                              int retryInterval = 1; // 재시도 간격 (1초)
+
+                              int retryCount = 0;
+                              bool shouldRetry = true;
+
+                              while (shouldRetry) {
+                                try {
+                                  String uri = '${Env.aiEndpoint}/infer/';
+                                  FormData formData = FormData.fromMap({
+                                    'files': await MultipartFile.fromFile(
+                                      audioPath,
+                                      // filename: 'user_record.m4a',
                                     ),
+                                  });
+                                  final response = await dio.post(uri,
+                                      data: formData,
+                                      options: Options(headers: {
+                                        'Content-Type': 'multipart/form-data',
+                                      }));
+
+                                  if (response.statusCode == 200) {
+                                    shouldRetry = false;
+                                    var jsonData = response.data[0];
+
+                                    print('[LOG] AI RESPONSE: $jsonData');
+                                    // 사용자 발음 스크립트
+                                    final userScript =
+                                    jsonData['transcription'] as String;
+                                    final totalScore =
+                                    (jsonData['total_score']).roundToDouble();
+
+                                    /// 히스토리에 문제 푼 기록을 등록한다.
+                                    final historyManager = ref.read(historyModelProvider.notifier);
+
+                                    print('[LOG] FETCH HISTORY LIST');
+
+                                    // 현재 시간 yyyy-MM-dd 로 변경
+                                    final String now =
+                                    DateTimeUtil.formatDateTime(DateTime.now());
+                                    final newHistoryModel = HistoryModel(
+                                      score: totalScore,
+                                      solverDate: now,
+                                      memberId: userData.email,
+                                      quizId: questionModel.quizId!,
+                                    );
+                                    await historyManager
+                                        .addHistory(newHistoryModel);
+
+                                    // 승급전인 경우 기록한다.
+                                    if (promoState.isPromo) {
+                                      promoState.addScore(totalScore);
+
+                                      final promoModel =
+                                      ref.read(promoModelProvider);
+                                      // 승급 심사
+                                      if (promoModel.scores.length == 3) {
+                                        ref
+                                            .read(userModelProvider.notifier)
+                                            .updateUser(promoModel.averageScore);
+                                        promoState.reset(); // 승급전 완료 -> 초기화
+                                      }
+                                    }
+
+                                    /// 사용자 정보 갱신
+                                    else {
+                                      ref
+                                          .read(userModelProvider.notifier)
+                                          .getUser();
+                                    }
+
+                                    /// 문자 비교 API를 호출한다. --> 보류
+
+                                    /// Navigator로 이동한다.
+                                    Future.delayed(
+                                      const Duration(milliseconds: 500),
+                                          () {
+                                        if (!mounted) return;
+                                        Navigator.pushReplacementNamed(
+                                            context, '/feedback', arguments: {
+                                          'userScript': userScript,
+                                          'totalScore': totalScore
+                                        });
+                                      },
+                                    );
+                                  }
+                                } on DioError catch (e) {
+                                  if (e.response != null) {
+                                    print('[ERR] DioError response: ${e.response}');
+                                    print('[ERR] DioError response status: ${e.response!.statusCode}');
+                                    print('[ERR] DioError response data: ${e.response!.data}');
+
+                                    if (e.response!.statusCode == 400) {
+                                      shouldRetry = false;
+                                    }
+                                  }
+                                  else {
+                                    print('[ERR] DioError: ${e.error}');
+                                    print('[ERR] DioError message: ${e.message}');
+                                    if (retryCount < maxRetry) {
+                                      retryCount++;
+                                      print('[LOG] RETRY ATTEMP $retryCount');
+                                      await Future.delayed(Duration(seconds: retryInterval));
+                                    }
+                                    else {
+                                      shouldRetry = false;
+                                      print('[LOG] MAX RETRY ATTEMPS REACHED');
+                                    }
+                                  }
+                                } catch (e) {
+                                  print('[ERR] Error: $e');
+                                  shouldRetry = false;
+                                }
+                              }
+
+
+                            }
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: audioPath != ''
+                                ? Colors.blueAccent.withOpacity(0.8)
+                                : Colors.grey,
+                            foregroundColor: audioPath != ''
+                                ? Colors.blueAccent
+                                : Colors.grey,
+                            minimumSize: const Size(double.infinity, 0),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                          )
-                        : Container(),
-
-                    // Next 버튼
-                    Container(
-                      alignment: Alignment.bottomCenter,
-                      height: MediaQuery.of(context).size.height / 1.1,
-                      margin: const EdgeInsets.all(15),
-                      child: TextButton(
-                        onPressed: () async {
-                          // 사용자의 녹음 파일 존재하는 경우
-                          if (audioPath != '') {
-                            // 녹음 파일 제출 후 피드백 화면으로 이동
-
-                            // outputPath 설정하기
-                            // String outputPath = createNewFilePath(audioPath);
-
-                            // .m4a -> .wav 파일 형식 변환
-                            // await convertM4AToWav(audioPath, outputPath);
-
-                            // AI 서버로 송신
-                            await _sendSTT(audioPath);
-
-                            if (!mounted) return;
-                            Navigator.pushReplacementNamed(context, '/feedback',
-                                arguments: testScript);
-                          }
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: audioPath != ''
-                              ? Colors.blueAccent.withOpacity(0.8)
-                              : Colors.grey,
-                          foregroundColor:
-                              audioPath != '' ? Colors.blueAccent : Colors.grey,
-                          minimumSize: const Size(double.infinity, 0),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: SectionText(
+                            text: 'Submit',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
                           ),
                         ),
-                        child: SectionText(
-                          text: 'Submit',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+                if (isSubmit)
+                  Stack(
+                    children: [
+                      // 터치 차단 배리어
+                      ModalBarrier(
+                        color: Colors.black.withOpacity(0.3),
+                        dismissible: false,
+                      ),
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            waveForm(),
+                            const SizedBox(height: 6.0),
+                            SectionText(
+                              text: 'Loading...',
+                              color: Colors.white,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                    ],
+                  )
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   // 음성 파형 위젯
-  Widget waveForm() {
-    return AudioWave(
-      width: 200,
-      height: 32,
-      spacing: 3,
-      beatRate: const Duration(milliseconds: 100),
-      bars: [
-        AudioWaveBar(heightFactor: 0.3, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.6, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.8, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.5, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.6, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.3, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.5, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.4, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.7, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.8, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.5, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.3, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.7, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.7, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.9, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.5, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.4, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.7, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.3, color: Colors.lightBlueAccent),
-        AudioWaveBar(heightFactor: 0.5, color: Colors.lightBlueAccent),
-      ],
-    );
-  }
+  // Widget waveForm() {
+  //   return AudioWave(
+  //     width: 200,
+  //     height: 32,
+  //     spacing: 3,
+  //     beatRate: const Duration(milliseconds: 100),
+  //     bars: [
+  //       AudioWaveBar(heightFactor: 0.3, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.6, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.8, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.5, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.6, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.3, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.5, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.4, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.7, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.8, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.5, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.3, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.7, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.7, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.9, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.5, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.4, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.7, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.3, color: Colors.lightBlueAccent),
+  //       AudioWaveBar(heightFactor: 0.5, color: Colors.lightBlueAccent),
+  //     ],
+  //   );
+  // }
 
   // 녹음 시작
   Future<void> startRecording() async {
@@ -529,22 +748,4 @@ class _LearnScreenState extends State<LearnScreen> {
       }
     });
   }
-
-  // wav로 변환한 파일 저장할 위치 설정 함수
-  // String createNewFilePath(String inputPath) {
-  //   print('Input path: $inputPath');
-  //   // 마지막 / 위치 찾기
-  //   int lastSlashIndex = inputPath.lastIndexOf('/');
-  //   String directory =
-  //
-  //   // / 이전까지 문자열 추출하여 디렉터리 경로로 사용
-  //   String directory = inputPath.substring(0, lastSlashIndex);
-  //
-  //   // 디렉터리 경로와 새 파일 이름 결합
-  //   String outputPath = '$directory/test.wav';
-  //
-  //   print('Output path: $outputPath');
-  //
-  //   return outputPath;
-  // }
 }

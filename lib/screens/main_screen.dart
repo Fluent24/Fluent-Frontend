@@ -1,11 +1,8 @@
 import 'package:fluent/screens/home_screen.dart';
 import 'package:fluent/screens/leaderboard_screen.dart';
 import 'package:fluent/screens/my_profile_screen.dart';
-import 'package:fluent/screens/register_screen.dart';
-import 'package:fluent/screens/test_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -22,7 +19,6 @@ class _MainScreenState extends State<MainScreen> {
   // 1. 홈(학습하기), 2. 리더보드, 3. 내 프로필
   final List<Widget> _screenType = [
     const HomeScreen(), // 홈 화면
-    // const TestScreen(),
     const LeaderboardScreen(), // 리더보드 화면
     const MyProfileScreen(), // 내 프로필 화면
   ];
