@@ -1,5 +1,8 @@
 // 리더보드(랭킹) 화면
 import 'package:fluent/models/user.dart';
+import 'package:fluent/widgets/profile_image.dart';
+import 'package:fluent/widgets/text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class LeaderboardScreen extends StatefulWidget {
@@ -11,7 +14,7 @@ class LeaderboardScreen extends StatefulWidget {
 
 class _LeaderboardScreenState extends State<LeaderboardScreen> {
   final UserModel testUser =
-      UserModel(id: 4, userName: 'sunoogy', rank: 'silver', grade: 4);
+      UserModel(id: 4, userName: 'sunoogy', rank: 'silver', grade: 4, favorites: []);
 
   final Map<String, List<UserModel>> _rankData = {
     'bronze': makeTestUser('bronze'),
@@ -36,20 +39,31 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.blueAccent.withOpacity(0.5),
         body: Column(
           children: [
             // 상단 랭크 목록 뷰 (가로 스크롤)
             Container(
-              decoration: const ShapeDecoration(
-                shape: Border(
-                  bottom: BorderSide(
-                    width: 1,
-                    color: Colors.grey,
-                  ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30.0),
+
+                gradient: LinearGradient(
+                  colors: [Colors.blueAccent, Colors.blueAccent.withOpacity(0.8)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-                color: Color(0xFFF7F4E9),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.blueAccent,
+                    offset: Offset(0, 1),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                  ),
+                ],
               ),
+              margin: const EdgeInsets.all(16.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -71,14 +85,23 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 future: _lstUser,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemBuilder: (context, index) {
-                        return rankCard(snapshot.data![index]);
-                      },
-                      itemCount: snapshot.data!.length,
+                    return Container(
+                      margin: const EdgeInsets.only(left: 20.0, right: 20.0, top: 12.0, bottom: 28.0),
+                      padding: const EdgeInsets.symmetric(vertical: 6.0),
+                      decoration: ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        color: Colors.white.withOpacity(0.8),
+                      ),
+                      child: ListView.builder(
+                        itemBuilder: (context, index) {
+                          return rankCard(snapshot.data![index]);
+                        },
+                        itemCount: snapshot.data!.length,
+                      ),
                     );
-                  }
-                  else {
+                  } else {
                     return const Center(
                       child: CircularProgressIndicator(),
                     );
@@ -94,51 +117,41 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
   Widget rankIcon(Color color, String rank) {
     // ignore: avoid_unnecessary_containers
-    return GestureDetector(
-      onTap: () {
-        // 랭크 아이콘 클릭 시, 해당 데이터 가져오기
-        setState(() {
-          _lstUser = _makeTestList(rank);
-          _selectedRank = rank;
-        });
-      },
-      child: Container(
-        decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              width: _selectedRank == rank ? 2 : 1,
-              color: _selectedRank == rank ? Colors.blue : Colors.white,
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () {
+            // 랭크 아이콘 클릭 시, 해당 데이터 가져오기
+            setState(() {
+              _lstUser = _makeTestList(rank);
+              _selectedRank = rank;
+            });
+          },
+          child: Container(
+            decoration: ShapeDecoration(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(360.0),
+              ),
+              color: color.withOpacity(rank == _selectedRank ? 0.8 : 0.4),
             ),
-            borderRadius: BorderRadius.circular(30),
+            margin: const EdgeInsets.symmetric(horizontal: 10.0),
+            padding: const EdgeInsets.all(10.0),
+            width: MediaQuery.of(context).size.width /
+                (rank == _selectedRank ? 5 : 6),
+            height: MediaQuery.of(context).size.width /
+                (rank == _selectedRank ? 5 : 6),
+            child: Image.asset('assets/images/ranks/$rank.png',
+                scale: rank == _selectedRank ? 20 : 25),
           ),
-          color: color,
         ),
-        margin: const EdgeInsets.all(10),
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        width: 100,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              '🏆',
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-
-            const SizedBox(height: 3),
-
-            Text(
-              rank,
-              style: const TextStyle(
-                fontSize: 12,
-                fontFamily: 'Nunito',
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+        const SizedBox(height: 3.0),
+        SectionText(
+          text: rank,
+          color: Colors.white,
+          fontWeight: rank == _selectedRank ? FontWeight.bold : FontWeight.w500,
+          fontSize: 14.0,
         ),
-      ),
+      ],
     );
   }
 
@@ -147,10 +160,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     List<UserModel> temp = [];
     for (int i = 1; i <= 10; i++) {
       if (rank == 'silver' && i == 4) {
-        temp.add(UserModel(id: 4, userName: 'sunoogy', rank: rank, grade: i));
+        temp.add(UserModel(id: 4, userName: 'sunoogy', rank: rank, grade: i, favorites: []));
         continue;
       }
-      temp.add(UserModel(id: i, userName: '$rank user $i', rank: rank, grade: i));
+      temp.add(
+          UserModel(id: i, userName: '$rank user $i', rank: rank, grade: i, favorites: []));
     }
 
     return temp;
@@ -159,35 +173,41 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   // 사용자 랭크 목록 개별 요소
   Widget rankCard(UserModel userModel) {
     return Container(
-      margin: const EdgeInsets.all(3),
-      padding: const EdgeInsets.all(15),
-      color: userModel.userName == testUser.userName ? Colors.yellow.withOpacity(0.5) : Colors.grey.withOpacity(0.2),
+      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 3.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        color: userModel.userName == testUser.userName
+            ? Colors.blueAccent.withOpacity(0.8)
+            : Colors.white.withOpacity(0.15),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 10, right: 20),
-            child: Text(
-              userModel.grade.toString(),
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+          // 순위
+          Container(
+            alignment: Alignment.center,
+            width: 35.0,
+            child: SectionText(
+              text: userModel.grade.toString(),
+              fontSize: 20.0,
+              fontWeight: FontWeight.w500,
+              color: userModel.userName == testUser.userName ? Colors.white : Colors.black54,
             ),
           ),
+          const SizedBox(width: 8.0),
 
-          const Padding(
-            padding: EdgeInsets.only(right: 20),
-            child: Icon(Icons.account_circle, size: 50,),
-          ),
+          ProfileImage(size: 40),
 
-          Text(
-            userModel.userName,
-            style: const TextStyle(
-              fontSize: 24,
-              fontFamily: 'Nunito',
-              fontWeight: FontWeight.bold,
-            ),
+          const SizedBox(width: 16.0),
+
+          SectionText(
+            text: userModel.userName,
+            fontSize: 20.0,
+            fontWeight: FontWeight.w500,
+            color: userModel.userName == testUser.userName ? Colors.white : Colors.black54,
           ),
         ],
       ),

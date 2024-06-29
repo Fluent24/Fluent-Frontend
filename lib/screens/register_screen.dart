@@ -2,7 +2,7 @@
     프로필 설정 화면
 
   */
-
+import 'package:fluent/common/dialog_util.dart';
 import 'package:fluent/models/interest.dart';
 import 'package:fluent/repository/interest_repository.dart';
 import 'package:fluent/widgets/profile_image.dart';
@@ -15,7 +15,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class RegisterScreen extends StatefulWidget {
   /// 사용자 프로필을 새로 생성하는지 여부
   bool isInit;
-  RegisterScreen({super.key, this.isInit = false});
+  String? email;
+  RegisterScreen({super.key, this.isInit = false, this.email});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -23,19 +24,28 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController controller = TextEditingController(); // 컨트롤러
   final List<Interest> _interests = interests;
   final List<Interest> _selectedInterests = [];
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.blueAccent,
       appBar: AppBar(
-        title: SectionText(text: widget.isInit ? '프로필 입력' : '프로필 수정', color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18,),
-        centerTitle: true,
-        leading: widget.isInit ? null : const BackButton(
+        title: SectionText(
+          text: widget.isInit ? 'Profile Settings' : 'Edit Profile',
           color: Colors.white,
+          fontWeight: FontWeight.w600,
+          fontSize: 18,
         ),
+        centerTitle: true,
+        leading: widget.isInit
+            ? null
+            : const BackButton(
+                color: Colors.white,
+              ),
         automaticallyImplyLeading: widget.isInit ? false : true,
         backgroundColor: Colors.blueAccent,
       ),
@@ -53,12 +63,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 // 프로필 사진
                 // null -> 기본 프로필 / 캐시에 이미지 존재 ? 캐싱 : API url
-                Center(child: ProfileImage(size: 100, canEdit: true)),
+                Center(child: ProfileImage(size: 100, canEdit: true,)),
                 const SizedBox(height: 20.0),
 
                 // 닉네임
                 const Text(
-                  '이름',
+                  'Name',
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w500,
@@ -67,15 +77,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 12.0),
-                NickNameTextField(
+                NickNameTextFormField(
                   formKey: _formKey,
+                  controller: controller,
                 ),
 
                 const SizedBox(height: 20.0),
 
                 // 관심사
                 const Text(
-                  '관심사',
+                  'Interests',
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w500,
@@ -164,6 +175,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 8.0),
               ],
             ),
           ),
@@ -178,25 +191,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
         width: MediaQuery.of(context).size.width,
         margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
         height: 50.0,
-        alignment: Alignment.center,
         child: TextButton(
-          onPressed: () {
+          onPressed: () async {
             if (_formKey.currentState?.validate() ?? false) {
               if (_selectedInterests.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   CustomSnackBar(
-                      text: '관심사를 선택해주세요.',
-                      backgroundColor: Colors.redAccent),
+                      text: '관심사를 선택해주세요.', backgroundColor: Colors.redAccent),
                 );
               } else {
                 // 닉네임 유효하고 관심사를 모두 선택한 경우 처리 로직
-                ScaffoldMessenger.of(context).showSnackBar(
-                  CustomSnackBar(
-                      text: '프로필이 변경되었습니다.',
-                      backgroundColor: Colors.black.withOpacity(0.9)),
+                bool? result = await showConfirmDialog(
+                  context: context,
+                  title:
+                      'Would you like to change your profile?',
+                  subtitle:
+                      'When your interests change, the types of questions asked may change.',
+                  route: Routes.profile,
                 );
+
+                // result == false --> 취소 버튼 클릭
+                if (result!) {
+                  // 프로필 수정 화면인 경우
+                  if (!widget.isInit) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      CustomSnackBar(
+                          text: '프로필이 변경되었습니다.',
+                          backgroundColor: Colors.black.withOpacity(0.9)),
+                    );
+
+                    if (!mounted) return;
+
+                    Navigator.pop(context);
+                  }
+                  // 프로필 설정 화면인 경우
+                  else {
+                    // print(widget.email);
+                    // print(controller.text);
+                    // print(_selectedInterests.fold("", (prov, next) => prov.toString() + next.label));
+
+                    // 사용자 정보 캐시에 저장
+                    // _userInfoRepository.writeUserInfo(type: InfoType.name, data: controller.text);
+                    // _userInfoRepository.writeUserInfo(type: InfoType.rank, data: 'bronze');
+                    // 프로필 이미지는 profile_image 위젯에서 함 --> 리팩터링..
+                    // _userInfoRepository.writeUserInfo(type: InfoType.favorites, data: _selectedInterests.map((e) => e.label).toList());
+
+                    // 사용자 정보 서버에 전송
+                  }
+                }
               }
-              // 화면 이동
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 CustomSnackBar(
@@ -205,6 +248,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               );
             }
           },
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white,
+          ),
           child: SectionText(
             text: '저장하기',
             color: Colors.blueAccent,

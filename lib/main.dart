@@ -2,6 +2,7 @@ import 'package:fluent/env/env.dart';
 import 'package:fluent/screens/feedback_screen.dart';
 import 'package:fluent/screens/learn_screen.dart';
 import 'package:fluent/screens/main_screen.dart';
+import 'package:fluent/screens/my_profile_screen.dart';
 import 'package:fluent/screens/register_screen.dart';
 import 'package:fluent/screens/review_screen.dart';
 import 'package:fluent/screens/splash_screen.dart';
@@ -23,12 +24,12 @@ Future<void> main() async {
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: '/',
+    initialRoute: '/main',
     routes: {
-      '/': (context) => SplashScreen(),
-      '/register': (context) => RegisterScreen(),
+      // '/': (context) => SplashScreen(),
       '/main': (context) => MainScreen(),
       '/review': (context) => ReviewScreen(),
+      '/profile': (context) => MyProfileScreen(),
     },
     onGenerateRoute: (settings) {
       if (settings.name == '/learn') {
@@ -73,6 +74,22 @@ Future<void> main() async {
               return SlideTransition(position: animation.drive(tween), child: child);
             }
           );
+        }
+      }
+
+      if (settings.name == '/register') {
+        if (settings.arguments != null) {
+          // 신규 등록하는 경우 -> 프로필 등록 화면으로 사용
+          final String userEmail = settings.arguments as String;
+          return MaterialPageRoute(builder: (context) {
+            return RegisterScreen(isInit: true, email: userEmail);
+          });
+        }
+        else {
+          // 기존 회원이 접속한 경우 -> 프로필 수정 화면으로 이용
+          return MaterialPageRoute(builder: (context) {
+            return RegisterScreen();
+          });
         }
       }
     },

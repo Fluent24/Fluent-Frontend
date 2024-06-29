@@ -95,7 +95,7 @@ class KakaoLoginService {
   /// 카카오 토큰 존재하며 유효한 경우 서버로 사용자 정보 송신하여 최초 사용자 여부 파악
   /// Request - 사용자 정보 [uid, email, profile img]
   /// Response - jwt 토큰 정보 수신 [accessToken, refreshToken, expirationTime, tokenType, issuedAt
-  Future<TokenModel?> sendUserInfo() async {
+  Future<Map<String, dynamic>?> sendUserInfo() async {
     try {
       User user = await UserApi.instance.me();
       print('사용자 정보 요청 성공'
@@ -106,11 +106,9 @@ class KakaoLoginService {
 
       // JWT 토큰 받아오기
       var requestData = {
-        'kakaoAccount': user.kakaoAccount?.email,
-        'kakaoPK': user.id,
-        'profile': user.kakaoAccount?.profile?.profileImageUrl,
+        'email': user.kakaoAccount?.email,
       };
-      var uri = Uri.parse('${Env.serverEndpoint}/api/v1/auth/sign-in');
+      var uri = Uri.parse('${Env.serverEndpoint}/auth/login');
       var response = await http.post(
         uri,
         headers: {
@@ -122,14 +120,20 @@ class KakaoLoginService {
       if (response.statusCode == 200) {
         var jsonData = json.decode(response.body);
         print('JWT 토큰 발급 성공: ${jsonData['accessToken']}');
-        return TokenModel.fromJson(jsonData);
-      } else {
+        return {"data": TokenModel.fromJson(jsonData)};
+      } else if (response.statusCode == 401) {
+        if (response.body == "Member not found") {
+          // 최초 사용자 접속 시
+          return {"data": user.kakaoAccount?.email};
+        }
+      }
+      else {
         print('잘못된 응답을 수신하였습니다.');
-        return null;
+        return {"data": null};
       }
     } catch (error) {
-      print('사용자 정보 요청 실패 $error');
-      return null;
+      print('사용자 정보 요청 실패');
+      return {"data": null};
     }
   }
 }

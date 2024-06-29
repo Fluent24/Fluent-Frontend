@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../common/kakao_login_service.dart';
 
 class SplashScreen extends StatefulWidget {
-  bool isButtonVisible = true;
+  bool isButtonVisible = false;
   SplashScreen({super.key});
 
   @override
@@ -39,58 +39,79 @@ class _SplashScreenState extends State<SplashScreen> {
                     'assets/images/splash_icon.png',
                     scale: 5,
                   ),
-
                   const SizedBox(height: 50.0),
                 ],
               ),
             ),
-      
             Positioned(
               bottom: MediaQuery.of(context).size.height / 6,
-              child: widget.isButtonVisible ? GestureDetector(
-                child: Image.asset(
-                    'assets/images/kakao/kakao_login_medium_wide.png'),
-                onTap: () async {
-                  // 카카오톡 로그인 로직 처리
-                  await _kakaoLoginServicece.kakaoLogin().then((value) async {
-                    // 로그인 성공한 경우 서버에 사용자 정보 보내고, JWT 토큰 수신
-                    if (value) {
-                      TokenModel? jwtToken = await _kakaoLoginServicece.sendUserInfo();
-      
-                      // JWT 토큰 수신한 경우, secure_storage에 저장
-                      if (jwtToken != null) {
-                        TokenManageService tokenManager = TokenManageService();
-                        tokenManager.saveToken(jwtToken);
-      
-                        setState(() {
-                          widget.isButtonVisible = false;
-                        });
-      
-                        // 화면 이동
-                        if (!mounted) return;
-                        Future.delayed(const Duration(milliseconds: 1500), () => Navigator.pushReplacementNamed(context, '/main'));
-                      }
-                      else {
-                        print('토큰 발급 받지 못함');
-                        setState(() {
-                          widget.isButtonVisible = true;
-                        });
-                        return;
-                      }
-                    }
-                    else {
-                      print('로그인 실패');
-                      setState(() {
-                        widget.isButtonVisible = true;
-                      });
-                      return;
-                    }
-                  },);
-                },
-              ) : const CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 5.0,
-              ),
+              child: widget.isButtonVisible
+                  ? GestureDetector(
+                      child: Image.asset(
+                          'assets/images/kakao/kakao_login_medium_wide.png'),
+                      onTap: () async {
+                        // 카카오톡 로그인 로직 처리
+                        await _kakaoLoginServicece.kakaoLogin().then(
+                          (value) async {
+                            // 로그인 성공한 경우 서버에 사용자 정보 보내고, JWT 토큰 수신
+                            if (value) {
+                              var response =
+                                  await _kakaoLoginServicece.sendUserInfo();
+                              if (response!["data"] != null) {
+                                // response!["data"] == "register" --> profile 등록 화면으로 이동
+                                if (response["data"] is String) {
+                                  if (!mounted) return;
+                                  Future.delayed(
+                                    const Duration(
+                                      milliseconds: 1500,
+                                    ),
+                                        () => Navigator.popAndPushNamed(context, '/register',
+                                        arguments: response["data"]),
+                                  );
+                                }
+                                // response!["data"] == TokenModel 인 경우 --> 홈 화면으로 이동
+                                else {
+                                  TokenModel? jwtToken = response["data"];
+                                  // JWT 토큰 수신한 경우, secure_storage에 저장
+                                  if (jwtToken != null) {
+                                    TokenManageService tokenManager =
+                                        TokenManageService();
+                                    tokenManager.saveToken(jwtToken);
+
+                                    setState(() {
+                                      widget.isButtonVisible = false;
+                                    });
+
+                                    // 화면 이동
+                                    if (!mounted) return;
+                                    Future.delayed(
+                                        const Duration(milliseconds: 1500),
+                                        () => Navigator.pushReplacementNamed(
+                                            context, '/main'));
+                                  } else {
+                                    print('토큰 발급 받지 못함');
+                                    setState(() {
+                                      widget.isButtonVisible = true;
+                                    });
+                                    return;
+                                  }
+                                }
+                              }
+                            } else {
+                              print('로그인 실패');
+                              setState(() {
+                                widget.isButtonVisible = true;
+                              });
+                              return;
+                            }
+                          },
+                        );
+                      },
+                    )
+                  : const CircularProgressIndicator(
+                      color: Colors.grey,
+                      strokeWidth: 5.0,
+                    ),
             ),
           ],
         ),
@@ -103,29 +124,44 @@ class _SplashScreenState extends State<SplashScreen> {
     await _kakaoLoginServicece.checkExistKakaoToken().then((value) async {
       // 토큰 존재 & 유효한 경우
       if (value) {
-        TokenModel? jwtToken = await _kakaoLoginServicece.sendUserInfo();
+        var response = await _kakaoLoginServicece.sendUserInfo();
 
-        // [Refactor] 아래 화면 이동 부분 함수로 빼기
-        // JWT 토큰 수신한 경우, secure_storage에 저장
-        if (jwtToken != null) {
-          TokenManageService tokenManager = TokenManageService();
-          tokenManager.saveToken(jwtToken);
-          setState(() {
-            widget.isButtonVisible = false;
-          });
+        if (response!["data"] != null) {
+          // response!["data"] == "register" --> profile 등록 화면으로 이동
+          if (response["data"] is String) {
+            if (!mounted) return;
+            Future.delayed(
+              const Duration(
+                milliseconds: 1500,
+              ),
+              () => Navigator.popAndPushNamed(context, '/register',
+                  arguments: response["data"]),
+            );
+          } else {
+            // response!["data"] == TokenModel 인 경우 --> 홈 화면으로 이동
+            TokenModel? jwtToken = response["data"];
+            // [Refactor] 아래 화면 이동 부분 함수로 빼기
+            // JWT 토큰 수신한 경우, secure_storage에 저장
+            if (jwtToken != null) {
+              TokenManageService tokenManager = TokenManageService();
+              tokenManager.saveToken(jwtToken);
+              setState(() {
+                widget.isButtonVisible = false;
+              });
 
-          // 화면 이동
-          if (!mounted) return;
-          Future.delayed(const Duration(milliseconds: 1500), () => Navigator.pushReplacementNamed(context, '/main'));
+              // 화면 이동
+              if (!mounted) return;
+              Future.delayed(const Duration(milliseconds: 1500),
+                  () => Navigator.pushReplacementNamed(context, '/main'));
+            } else {
+              print('토큰 발급 받지 못함');
+              setState(() {
+                widget.isButtonVisible = true;
+              });
+            }
+          }
         }
-        else {
-          print('토큰 발급 받지 못함');
-          setState(() {
-            widget.isButtonVisible = true;
-          });
-        }
-      }
-      else {
+      } else {
         print('유효한 토큰 존재하지 않음');
         setState(() {
           widget.isButtonVisible = true;

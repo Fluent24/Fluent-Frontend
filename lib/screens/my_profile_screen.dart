@@ -109,17 +109,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               // 주간 차트 영역
               Container(
                 width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 24.0),
+                margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
                 padding: const EdgeInsets.all(24.0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.blueAccent.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(10.0),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
+                      color: Colors.blueAccent.withOpacity(0.15),
                       offset: const Offset(0, 1),
-                      blurRadius: 1,
-                      spreadRadius: 0,
+                      blurRadius: 5,
+                      spreadRadius: 1,
                     ),
                   ],
                 ),
@@ -127,10 +127,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SectionText(
-                      text: '주간 학습 차트',
+                      text: 'Weekly Chart',
                       fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
 
                     const SizedBox(height: 16.0),
@@ -139,7 +139,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       padding: const EdgeInsets.all(10.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.blueGrey.withOpacity(0.15),
+                        color: Colors.white.withOpacity(0.7),
                       ),
                       child: WeeklyLineChart(),
                     ),
@@ -151,7 +151,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
               // 로그아웃
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 12.0),
+                margin: const EdgeInsets.symmetric(horizontal: 20.0),
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -173,9 +173,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     foregroundColor: Colors.white,
                   ),
                   child: SectionText(
-                    text: '로그아웃',
+                    text: 'Sign Out',
                     color: Colors.red,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),

@@ -1,3 +1,4 @@
+import 'package:fluent/widgets/text.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
@@ -33,8 +34,8 @@ class _ProgressBarState extends State<ProgressBar> {
         LinearPercentIndicator(
           padding: EdgeInsets.zero,
           percent: widget.percent,
-          lineHeight: 18,
-          backgroundColor: Colors.white.withOpacity(0.5),
+          lineHeight: 24,
+          backgroundColor: Colors.white.withOpacity(0.7),
           progressColor: widget.barColor,
           barRadius: const Radius.circular(20),
         ),
@@ -44,15 +45,11 @@ class _ProgressBarState extends State<ProgressBar> {
         Container(
           alignment: FractionalOffset(widget.percent, 1 - widget.percent),
           child: FractionallySizedBox(
-            child: Text(
-              '${(widget.percent * 100).toInt()}%',
-              style: const TextStyle(
-                fontSize: 12,
-                fontFamily: 'Poppins',
+            child: SectionText(
+              text: '${(widget.percent * 100).toInt()}%',
+                fontSize: 12.0,
                 fontWeight: FontWeight.w600,
-                fontStyle: FontStyle.italic,
                 color: Colors.white,
-              ),
             ),
           ),
         )

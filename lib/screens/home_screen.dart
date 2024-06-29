@@ -32,7 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: MediaQuery.of(context).size.height / 4.2,
                   padding: const EdgeInsets.all(24.0),
                   decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(10.0), bottomRight: Radius.circular(10.0)),
+                      borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(10.0),
+                          bottomRight: Radius.circular(10.0)),
                       gradient: LinearGradient(
                         colors: [
                           Colors.blueAccent.withOpacity(0.9),
@@ -48,23 +50,29 @@ class _HomeScreenState extends State<HomeScreen> {
                           spreadRadius: 1,
                           blurRadius: 1,
                         )
-                      ]
-                  ),
+                      ]),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // 오늘의 학습 달성률 표시 영역
-                      SectionText(text: '오늘의 학습 목표', color: Colors.white, fontSize: 32, fontWeight: FontWeight.w800,),
-                      const SizedBox(height: 30),
+                      SectionText(
+                        text: 'Daily Achievement',
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                      ),
+                      const SizedBox(height: 24.0),
                       ProgressBar(
-                          percent: 0.6, barColor: const Color(0xFF9DFFCA)),
+                        percent: 0.6,
+                        barColor: const Color(0xFF9DFFCA),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 12.0),
+            const SizedBox(height: 8.0),
 
             // 하단 위젯 영역 (관심사, 학습하기, 복습하기 영역)
             Padding(
@@ -93,11 +101,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         // 관심사 라벨 + 수정 버튼
                         Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              '관심사',
+                              'Interests',
                               style: TextStyle(
                                 fontSize: 24,
                                 fontFamily: 'Poppins',
@@ -110,8 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 // 프로필 수정 중 관심사 수정 화면으로 이동
                                 Navigator.pushNamed(context, '/register');
                               },
-                              icon: const FaIcon(FontAwesomeIcons
-                                  .solidPenToSquare),
+                              icon: const FaIcon(
+                                  FontAwesomeIcons.solidPenToSquare),
                               iconSize: 18,
                             ),
                           ],
@@ -121,8 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         // 관심사 영역
                         Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           // 사용자가 선택한 관심사 반영하도록 변경
                           children: [
                             InterestBox(
@@ -167,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         // 학습하기 라벨
                         SectionText(
-                          text: '일일 학습하기',
+                          text: 'Daily Course',
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
                         ),
@@ -182,9 +188,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
+                              borderRadius: BorderRadius.circular(10.0),
                             ),
-                            minimumSize: const Size(double.infinity, 0),
+                            minimumSize: Size(MediaQuery.of(context).size.width, 0),
                             foregroundColor: Colors.white,
                           ),
                           child: SectionText(
@@ -219,10 +225,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         // 복습하기 라벨
                         SectionText(
-                            text: '문장 복습하기',
+                            text: 'Review',
                             fontSize: 24,
-                            fontWeight: FontWeight.w700
-                        ),
+                            fontWeight: FontWeight.w700),
 
                         const SizedBox(height: 10),
 
@@ -234,13 +239,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(10.0),
                                 side: const BorderSide(
                                   color: Colors.blueAccent,
                                   width: 1,
-                                )
-                            ),
-                            minimumSize: const Size(double.infinity, 0),
+                                )),
+                            minimumSize: Size(MediaQuery.of(context).size.width, 0),
                             foregroundColor: Colors.blueAccent,
                           ),
                           child: SectionText(

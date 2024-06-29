@@ -2,22 +2,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class NickNameTextField extends StatefulWidget {
+class NickNameTextFormField extends StatefulWidget {
   String? userNickName; // 사용자가 설정한 닉네임 - String? : 존재하지 않을 수 있음
   final GlobalKey<FormState>? formKey; // TextFormField 상태 관리 키
-  NickNameTextField({super.key, this.userNickName, required this.formKey});
+  final TextEditingController controller; // 컨트롤러
+  NickNameTextFormField({super.key, this.userNickName, required this.formKey, required this.controller});
 
   @override
-  State<NickNameTextField> createState() => _NickNameTextFieldState();
+  State<NickNameTextFormField> createState() => _NickNameTextFormFieldState();
 }
 
-class _NickNameTextFieldState extends State<NickNameTextField> {
-  final TextEditingController _controller = TextEditingController();
+class _NickNameTextFormFieldState extends State<NickNameTextFormField> {
+  late TextEditingController _controller;
   late bool canEdit; // 닉네임 수정 가능 여부
 
   @override
   void initState() {
     super.initState();
+    _controller = widget.controller;
 
     if (widget.userNickName != null) {
       _controller.text = widget.userNickName!;

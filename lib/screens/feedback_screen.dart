@@ -21,7 +21,13 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         body: PopScope(
           canPop: false,
           onPopInvoked: (didPop) async {
-            await showConfirmDialog(context: context, canSave: true);
+            await showConfirmDialog(
+              context: context,
+              title: 'Do you really want to stop learning?',
+              subtitle: 'you can check your feedback at Review Page',
+              reverse: true,
+              route: Routes.main,
+            );
           },
           child: Stack(
             children: [
@@ -169,7 +175,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
                               // 다시 듣기 / 다음 문제 / 음성 녹음
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   // 다시 듣기
                                   ElevatedButton(
@@ -228,7 +235,13 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                               // 홈 화면으로 이동
                               // 다음 문제로 이동할 때마다 popAndPush 방식으로 이동해서 pop만 해도 홈 화면으로 감
                               // 정말 나가겠습니까? AlertDialog 띄우기
-                              await showConfirmDialog(context: context, canSave: true);
+                              await showConfirmDialog(
+                                context: context,
+                                title: 'Do you really want to stop learning?',
+                                subtitle: 'you can check your feedback at Review Page',
+                                reverse: true,
+                                route: Routes.main,
+                              );
                             },
                             style: TextButton.styleFrom(
                               backgroundColor: Colors.white.withOpacity(0.8),
@@ -262,7 +275,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                               Navigator.pushReplacementNamed(context, '/learn');
                             },
                             style: TextButton.styleFrom(
-                              backgroundColor: Colors.blueAccent.withOpacity(0.8),
+                              backgroundColor:
+                                  Colors.blueAccent.withOpacity(0.8),
                               minimumSize: const Size(double.infinity, 0),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fluent/common/image_util.dart';
+import 'package:fluent/repository/user_info_repository.dart';
 import 'package:fluent/widgets/text.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,8 +9,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 /// 사진 프로필 - 이미지 url 또는 캐싱으로 받은 이미지 표시
 class CustomProfile extends StatelessWidget {
   final double size;
-  final File image;
-  const CustomProfile({super.key, required this.size, required this.image});
+  File image;
+  CustomProfile({super.key, required this.size, required this.image});
 
   @override
   Widget build(BuildContext context) {
@@ -64,10 +65,12 @@ class DefaultProfile extends StatelessWidget {
 class ProfileImage extends StatefulWidget {
   final double size;
   final bool canEdit;
+  File? image;
   ProfileImage({
     super.key,
     required this.size,
     this.canEdit = false,
+    this.image,
   });
 
   @override
@@ -76,7 +79,7 @@ class ProfileImage extends StatefulWidget {
 
 class _ProfileImageState extends State<ProfileImage> {
   final ImageManager _imageManager = ImageManager();
-  File? image;
+  final UserInfoRepository _userInfoRepository = UserInfoRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +103,8 @@ class _ProfileImageState extends State<ProfileImage> {
             )
           ],
         ),
-        child: image != null
-            ? CustomProfile(size: widget.size, image: image!)
+        child: widget.image != null
+            ? CustomProfile(size: widget.size, image: widget.image!)
             : DefaultProfile(size: widget.size),
       ),
     );
@@ -116,7 +119,7 @@ class _ProfileImageState extends State<ProfileImage> {
             child: Container(
               width: MediaQuery.of(context).size.width,
               height:
-                  image == null ? 170 : 220, // 기본 이미지인 경우, 기본 이미지 설정 메뉴 필요 없음
+                  widget.image == null ? 170 : 220, // 기본 이미지인 경우, 기본 이미지 설정 메뉴 필요 없음
               margin: const EdgeInsets.symmetric(horizontal: 32.0),
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               decoration: ShapeDecoration(
@@ -146,7 +149,8 @@ class _ProfileImageState extends State<ProfileImage> {
                         // 사진 촬영하여 이미지 가져오기
                         File? img = await _imageManager.getCameraImage();
                         setState(() async {
-                          image = img;
+                          widget.image = img;
+                          _userInfoRepository.writeUserInfo(type: InfoType.profile, data: img?.path ?? 'null');
                         });
                       },
                       style:
@@ -169,7 +173,8 @@ class _ProfileImageState extends State<ProfileImage> {
                         // 갤러리에서 이미지 가져오기
                         File? img = await _imageManager.getGalleryImage();
                         setState(() {
-                          image = img;
+                          widget.image = img;
+                          _userInfoRepository.writeUserInfo(type: InfoType.profile, data: img?.path ?? 'null');
                         });
                       },
                       style:
@@ -183,7 +188,7 @@ class _ProfileImageState extends State<ProfileImage> {
 
                   // 기본 이미지 설정
                   // 기본 이미지인 경우, 기본 이미지 설정 메뉴 필요 없음
-                  if (image != null)
+                  if (widget.image != null)
                     SizedBox(
                       width: MediaQuery.of(context).size.width,
                       child: TextButton(
@@ -193,7 +198,8 @@ class _ProfileImageState extends State<ProfileImage> {
                           Navigator.pop(context);
                           // 프로필 이미지 삭제
                           setState(() {
-                            image = null;
+                            widget.image = null;
+                            _userInfoRepository.writeUserInfo(type: InfoType.profile, data: 'null');
                           });
                         },
                         style:

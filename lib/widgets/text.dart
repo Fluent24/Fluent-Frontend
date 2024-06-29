@@ -5,8 +5,9 @@ class SectionText extends StatelessWidget {
   Color? color;
   double? fontSize;
   FontWeight? fontWeight;
+  FontStyle? fontStyle;
 
-  SectionText({super.key, required this.text, this.color, this.fontSize, this.fontWeight});
+  SectionText({super.key, required this.text, this.color, this.fontSize, this.fontWeight, this.fontStyle});
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +18,7 @@ class SectionText extends StatelessWidget {
         fontFamily: 'Poppins',
         fontSize: fontSize ?? 16,
         fontWeight: fontWeight ?? FontWeight.w500,
+        fontStyle: fontStyle ?? FontStyle.normal,
       ),
     );
   }

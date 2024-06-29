@@ -21,8 +21,8 @@ class _MainScreenState extends State<MainScreen> {
   // bottom navigation bar와 연동할 위젯 목록
   // 1. 홈(학습하기), 2. 리더보드, 3. 내 프로필
   final List<Widget> _screenType = [
-    // const HomeScreen(), // 홈 화면
-    const TestScreen(),
+    const HomeScreen(), // 홈 화면
+    // const TestScreen(),
     const LeaderboardScreen(), // 리더보드 화면
     const MyProfileScreen(), // 내 프로필 화면
   ];
@@ -45,7 +45,7 @@ class _MainScreenState extends State<MainScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
-                BoxShadow(color: Colors.grey.withOpacity(0.5), spreadRadius: 2, blurRadius: 10),
+                BoxShadow(color: Colors.blueGrey.withOpacity(0.2), spreadRadius: 0, blurRadius: 5),
               ],
             ),
             child: BottomNavigationBar(
