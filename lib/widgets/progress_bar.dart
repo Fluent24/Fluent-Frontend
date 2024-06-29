@@ -49,7 +49,7 @@ class _ProgressBarState extends State<ProgressBar> {
               style: const TextStyle(
                 fontSize: 12,
                 fontFamily: 'Poppins',
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontStyle: FontStyle.italic,
                 color: Colors.white,
               ),

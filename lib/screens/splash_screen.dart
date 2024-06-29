@@ -1,62 +1,33 @@
+import 'package:fluent/common/token_manage_service.dart';
+import 'package:fluent/models/token.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+
+import '../common/kakao_login_service.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  bool isButtonVisible = true;
+  SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   Future.delayed(
-  //     Duration(milliseconds: 1500),
-  //     () async {
-  //       // 런치 스크린 동안 처리할 로직
-  //       if (await AuthApi.instance.hasToken()) {
-  //         try {
-  //           AccessTokenInfo tokenInfo =
-  //               await UserApi.instance.accessTokenInfo();
-  //           print('토큰 유효성 체크 성공 ${tokenInfo.id} ${tokenInfo.expiresIn}');
-  //           // 여기서 넘어가면 바로 메인 화면
-  //           Navigator.popAndPushNamed(context, '/main');
-  //         } catch (error) {
-  //           if (error is KakaoException && error.isInvalidTokenError()) {
-  //             print('토큰 만료 $error');
-  //           } else {
-  //             print('토큰 정보 조회 실패 $error');
-  //           }
-  //
-  //           try {
-  //             // 카카오계정으로 로그인
-  //             OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-  //             print('로그인 성공 ${token.accessToken}');
-  //           } catch (error) {
-  //             print('로그인 실패 $error');
-  //           }
-  //         }
-  //       } else {
-  //         print('발급된 토큰 없음');
-  //
-  //         try {
-  //           OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-  //           print('로그인 성공 ${token.accessToken}');
-  //         } catch (error) {
-  //           print('로그인 실패 $error');
-  //         }
-  //       }
-  //     },
-  //   );
-  // }
+  final KakaoLoginService _kakaoLoginServicece = KakaoLoginService();
+
+  @override
+  void initState() {
+    super.initState();
+    // _kakaoLoginServicece.kakaoLogout();
+    // 카카오 토큰 존재 체크하여 로그인 버튼 활성화 여부 결정
+    checkLogin();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: const Color(0xFFF7F4E9),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.white,
         body: Stack(
           alignment: Alignment.center,
           children: [
@@ -64,96 +35,103 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset('assets/images/fluent_icon.png'),
-                  const Text(
-                    'Fluent',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontFamily: 'Nunito',
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF755757),
-                    ),
+                  Image.asset(
+                    'assets/images/splash_icon.png',
+                    scale: 5,
                   ),
+
+                  const SizedBox(height: 50.0),
                 ],
               ),
             ),
+      
             Positioned(
-              bottom: 150,
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      // 로그인 버튼 클릭 로직 수행
-                      /*hashKeyCheck().then((value) {
-                        return showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text('kakao hash check'),
-                              content: Text('$value'),
-                              actions: [
-                                ElevatedButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('뒤로 가기'),
-                                )
-                              ],
-                            );
-                          },
-                        );
-                      });*/
-
-                      // 카카오톡 실행 가능 여부 확인
-                      // 실행 가능 -> 카카오톡으로 로그인
-                      // 실행 불가능 -> 카카오계정으로 로그인
-                      if (await isKakaoTalkInstalled()) {
-                        try {
-                          OAuthToken token =
-                              await UserApi.instance.loginWithKakaoTalk();
-                          print('카카오톡 로그인 성공 ${token.accessToken}');
-
-                          try {
-                            User user = await UserApi.instance.me();
-                            print('사용자 정보 요청 성공'
-                                '\n회원번호: ${user.id}'
-                                '\n닉네임: ${user.kakaoAccount?.profile?.nickname}'
-                                '\n이메일: ${user.kakaoAccount?.email}');
-                          } catch (error) {
-                            print('사용자 정보 요청 실패 $error');
-                          }
-                        } catch (error) {
-                          print('카카오톡 로그인 실패 $error');
-
-                          // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인 취소한 경우,
-                          // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소 처리 (ex. 뒤로가기)
-                          if (error is PlatformException &&
-                              error.code == 'CANCELED') {
-                            return;
-                          }
-
-                          // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
-                          try {
-                            await UserApi.instance.loginWithKakaoAccount();
-                            print('카카오계정으로 로그인 성공');
-                          } catch (error) {
-                            print('카카오계정으로 로그인 실패 $error');
-                          }
-                        }
-                      } else {
-                        try {
-                          await UserApi.instance.loginWithKakaoAccount();
-                          print('카카오계정으로 로그인 성공');
-                        } catch (error) {
-                          print('카카오계정으로 로그인 실패 $error');
-                        }
+              bottom: MediaQuery.of(context).size.height / 6,
+              child: widget.isButtonVisible ? GestureDetector(
+                child: Image.asset(
+                    'assets/images/kakao/kakao_login_medium_wide.png'),
+                onTap: () async {
+                  // 카카오톡 로그인 로직 처리
+                  await _kakaoLoginServicece.kakaoLogin().then((value) async {
+                    // 로그인 성공한 경우 서버에 사용자 정보 보내고, JWT 토큰 수신
+                    if (value) {
+                      TokenModel? jwtToken = await _kakaoLoginServicece.sendUserInfo();
+      
+                      // JWT 토큰 수신한 경우, secure_storage에 저장
+                      if (jwtToken != null) {
+                        TokenManageService tokenManager = TokenManageService();
+                        tokenManager.saveToken(jwtToken);
+      
+                        setState(() {
+                          widget.isButtonVisible = false;
+                        });
+      
+                        // 화면 이동
+                        if (!mounted) return;
+                        Future.delayed(const Duration(milliseconds: 1500), () => Navigator.pushReplacementNamed(context, '/main'));
                       }
-                    },
-                    child: Image.asset(
-                        'assets/images/kakao/kakao_login_medium_narrow.png'),
-                  ),
-                ],
+                      else {
+                        print('토큰 발급 받지 못함');
+                        setState(() {
+                          widget.isButtonVisible = true;
+                        });
+                        return;
+                      }
+                    }
+                    else {
+                      print('로그인 실패');
+                      setState(() {
+                        widget.isButtonVisible = true;
+                      });
+                      return;
+                    }
+                  },);
+                },
+              ) : const CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 5.0,
               ),
             ),
           ],
-        ));
+        ),
+      ),
+    );
+  }
+
+  /// 토큰 존재 여부에 따라 카카오 로그인 버튼 활성화 설정 메소드
+  Future<void> checkLogin() async {
+    await _kakaoLoginServicece.checkExistKakaoToken().then((value) async {
+      // 토큰 존재 & 유효한 경우
+      if (value) {
+        TokenModel? jwtToken = await _kakaoLoginServicece.sendUserInfo();
+
+        // [Refactor] 아래 화면 이동 부분 함수로 빼기
+        // JWT 토큰 수신한 경우, secure_storage에 저장
+        if (jwtToken != null) {
+          TokenManageService tokenManager = TokenManageService();
+          tokenManager.saveToken(jwtToken);
+          setState(() {
+            widget.isButtonVisible = false;
+          });
+
+          // 화면 이동
+          if (!mounted) return;
+          Future.delayed(const Duration(milliseconds: 1500), () => Navigator.pushReplacementNamed(context, '/main'));
+        }
+        else {
+          print('토큰 발급 받지 못함');
+          setState(() {
+            widget.isButtonVisible = true;
+          });
+        }
+      }
+      else {
+        print('유효한 토큰 존재하지 않음');
+        setState(() {
+          widget.isButtonVisible = true;
+          print('로그인 버튼 출력');
+        });
+      }
+    });
   }
 }

@@ -112,7 +112,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                   ),
                                   const SizedBox(width: 10),
                                   const Text(
-                                    '1 / 5',
+                                    '2',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontFamily: 'Poppins',

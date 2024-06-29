@@ -1,6 +1,7 @@
 import 'package:fluent/screens/home_screen.dart';
 import 'package:fluent/screens/leaderboard_screen.dart';
 import 'package:fluent/screens/my_profile_screen.dart';
+import 'package:fluent/screens/register_screen.dart';
 import 'package:fluent/screens/test_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -28,48 +29,50 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // 홈, 리더보드, 프로필 화면 전체 백그라운드 white70 설정됨
-      backgroundColor: const Color(0xFFE7EEF7),
-      body: _screenType.elementAt(_selectedIndex),
-      bottomNavigationBar: Theme(
-        // bottom navigation bar 기본 애니메이션 효과 제거
-        data: ThemeData(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(color: Colors.grey.withOpacity(0.5), spreadRadius: 2, blurRadius: 10),
-            ],
+    return SafeArea(
+      child: Scaffold(
+        // 홈, 리더보드, 프로필 화면 전체 백그라운드 white70 설정됨
+        backgroundColor: const Color(0xFFE7EEF7),
+        body: _screenType.elementAt(_selectedIndex),
+        bottomNavigationBar: Theme(
+          // bottom navigation bar 기본 애니메이션 효과 제거
+          data: ThemeData(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
           ),
-          child: BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            showSelectedLabels: true,
-            showUnselectedLabels: true,
-            backgroundColor: Colors.white,
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: Colors.blueAccent,
-            unselectedItemColor: Colors.grey.withOpacity(0.8),
-            iconSize: 24,
-            elevation: 0,
-            selectedFontSize: 11,
-            selectedLabelStyle: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
-            unselectedFontSize: 9,
-            unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w400),
-            onTap: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            items: const [
-              BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
-              BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.rankingStar), label: 'Leaderboard'),
-              BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.solidUser), label: 'Profile'),
-            ],
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(color: Colors.grey.withOpacity(0.5), spreadRadius: 2, blurRadius: 10),
+              ],
+            ),
+            child: BottomNavigationBar(
+              currentIndex: _selectedIndex,
+              showSelectedLabels: true,
+              showUnselectedLabels: true,
+              backgroundColor: Colors.white,
+              type: BottomNavigationBarType.fixed,
+              selectedItemColor: Colors.blueAccent,
+              unselectedItemColor: Colors.grey.withOpacity(0.8),
+              iconSize: 24,
+              elevation: 0,
+              selectedFontSize: 11,
+              selectedLabelStyle: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
+              unselectedFontSize: 9,
+              unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w400),
+              onTap: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              items: const [
+                BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
+                BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.rankingStar), label: 'Leaderboard'),
+                BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.solidUser), label: 'Profile'),
+              ],
+            ),
           ),
         ),
       ),

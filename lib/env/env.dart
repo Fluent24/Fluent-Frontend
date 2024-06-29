@@ -9,4 +9,7 @@ final class Env {
 
   @EnviedField(varName: 'KAKAO_JAVASCRIPT_KEY', obfuscate: true)
   static final String kakaoJavaScriptKey = _Env.kakaoJavaScriptKey;
+
+  @EnviedField(varName: 'SERVER_ENDPOINT', obfuscate: true)
+  static final String serverEndpoint = _Env.serverEndpoint;
 }

@@ -23,13 +23,12 @@ Future<void> main() async {
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: '/main',
+    initialRoute: '/',
     routes: {
-      // '/': (context) => SplashScreen(),
+      '/': (context) => SplashScreen(),
       '/register': (context) => RegisterScreen(),
       '/main': (context) => MainScreen(),
       '/review': (context) => ReviewScreen(),
-      '/test': (context) => TestScreen(),
     },
     onGenerateRoute: (settings) {
       if (settings.name == '/learn') {

@@ -1,8 +1,12 @@
+import 'package:fluent/widgets/interest_box.dart';
+import 'package:fluent/widgets/progress_bar.dart';
+import 'package:fluent/widgets/text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-// 홈(학습하기) 화면
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -11,278 +15,241 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  double progress = 0.5;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.1),
-      body: SafeArea(
+      backgroundColor: Colors.transparent,
+      body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Daily Course / Required Time / Start Button
-            Container(
-              constraints: BoxConstraints(maxWidth: double.infinity, maxHeight: 200),
-
-              margin: const EdgeInsets.all(20),
-              // outline design
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF0047FF), Color(0xFF0047FF).withOpacity(0.5)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0xFF0047FF).withOpacity(0.3),
-                    blurRadius: 0,
-                    offset: const Offset(0, 12),
-                  ),
-                  BoxShadow(
-                    color: Color(0xFF0047FF).withOpacity(0.3),
-                    blurRadius: 2,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                // Daily Course / required time / start button
-                child: Column(
-                  children: [
-                    // Daily Course / required time
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Daily Course',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Poppins',
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '12m',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Poppins',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // start button
-                    GestureDetector(
-                      onTap: () {
-                        // 학습하기 화면으로 이동
-                        Navigator.pushNamed(context, '/learn');
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        height: 50,
-                        decoration: ShapeDecoration(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            )),
-                        child: const Center(
-                          child: Text(
-                            'Start',
-                            style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontFamily: 'Poppins',
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
+            Stack(
+              children: [
+                // 사용자 프로필 + 오늘 학습량 + 연속 학습 일수 + 랭킹 표시 영역
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height / 4.2,
+                  padding: const EdgeInsets.all(24.0),
+                  decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(10.0), bottomRight: Radius.circular(10.0)),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.blueAccent.withOpacity(0.9),
+                          Colors.blueAccent
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
-                    ),
-                  ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blueAccent.withOpacity(0.5),
+                          offset: const Offset(0, 2),
+                          spreadRadius: 1,
+                          blurRadius: 1,
+                        )
+                      ]
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 오늘의 학습 달성률 표시 영역
+                      SectionText(text: '오늘의 학습 목표', color: Colors.white, fontSize: 32, fontWeight: FontWeight.w800,),
+                      const SizedBox(height: 30),
+                      ProgressBar(
+                          percent: 0.6, barColor: const Color(0xFF9DFFCA)),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
 
-            // Review Course / required time / start button
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.all(20),
-              // outline design
-              decoration: ShapeDecoration(
-                  color: const Color(0xFFE15959).withOpacity(0.8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  )),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                // Daily Course / required time / start button
-                child: Column(
-                  children: [
-                    // Daily Course / required time
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '🧾 Review Course',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Nunito',
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '9m',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Nunito',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
+            const SizedBox(height: 12.0),
 
-                    const SizedBox(height: 20),
-
-                    // start button
-                    GestureDetector(
-                      onTap: () {
-                        // 복습하기 화면으로 이동
-                        Navigator.pushNamed(context, '/review');
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        height: 50,
-                        decoration: ShapeDecoration(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            )),
-                        child: const Center(
-                          child: Text(
-                            'Start',
-                            style: TextStyle(
-                              color: Colors.redAccent,
-                              fontFamily: 'Nunito',
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Consecutive Learning Days / Rating
-            Container(
-              margin: const EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+            // 하단 위젯 영역 (관심사, 학습하기, 복습하기 영역)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Column(
                 children: [
-                  // Consecutive Learning Days
-                  Expanded(
-                    flex: 10,
-                    child: Container(
-                      height: 100,
-                      padding: const EdgeInsets.all(10),
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                  // 사용자 관심사 영역
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.only(
+                        left: 25, top: 10, bottom: 23, right: 10),
+                    decoration: BoxDecoration(
                         color: Colors.white,
-                      ),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Consecutive Days',
-                            style: TextStyle(
-                              fontFamily: 'Nunito',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
+                        borderRadius: BorderRadius.circular(10.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            offset: const Offset(0, 2),
+                            blurRadius: 1,
+                            spreadRadius: 0,
+                          ),
+                        ]),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 관심사 라벨 + 수정 버튼
+                        Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              '관심사',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(
-                                Icons.local_fire_department,
-                                size: 50,
-                                color: Colors.redAccent,
-                              ),
-                              Text(
-                                '9 Days',
-                                style: TextStyle(
-                                  fontFamily: 'Nunito',
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            IconButton(
+                              onPressed: () {
+                                // 프로필 수정 중 관심사 수정 화면으로 이동
+                                Navigator.pushNamed(context, '/register');
+                              },
+                              icon: const FaIcon(FontAwesomeIcons
+                                  .solidPenToSquare),
+                              iconSize: 18,
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // 관심사 영역
+                        Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment.start,
+                          // 사용자가 선택한 관심사 반영하도록 변경
+                          children: [
+                            InterestBox(
+                              text: '연애',
+                              boxColor: Colors.pinkAccent,
+                            ),
+                            const SizedBox(width: 10),
+                            InterestBox(
+                              text: '여행',
+                              boxColor: Colors.lightGreen,
+                            ),
+                            const SizedBox(width: 10),
+                            InterestBox(
+                              text: '운동',
+                              boxColor: Colors.blueAccent,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
 
-                  const Spacer(flex: 1),
-
-                  // Rating
-                  Expanded(
-                    flex: 10,
-                    child: Container(
-                      height: 100,
-                      padding: const EdgeInsets.all(10),
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                  // 학습하기
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 25, vertical: 20),
+                    decoration: BoxDecoration(
                         color: Colors.white,
-                      ),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Grade',
-                            style: TextStyle(
-                              fontFamily: 'Nunito',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
+                        borderRadius: BorderRadius.circular(10.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            offset: const Offset(0, 2),
+                            blurRadius: 1,
+                            spreadRadius: 0,
+                          ),
+                        ]),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 학습하기 라벨
+                        SectionText(
+                          text: '일일 학습하기',
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        TextButton(
+                          onPressed: () {
+                            // 학습하기 화면으로 이동
+                            Navigator.pushNamed(context, '/learn');
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
                             ),
+                            minimumSize: const Size(double.infinity, 0),
+                            foregroundColor: Colors.white,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text(
-                                '🏆',
-                                style: TextStyle(fontSize: 30),
-                              ),
-                              Text(
-                                'Gold',
-                                style: TextStyle(
-                                  fontFamily: 'Nunito',
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                          child: SectionText(
+                            text: 'Start',
+                            fontSize: 16,
+                            color: Colors.white,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // 복습하기
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 25, vertical: 20),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            offset: const Offset(0, 2),
+                            blurRadius: 1,
+                            spreadRadius: 0,
+                          ),
+                        ]),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 복습하기 라벨
+                        SectionText(
+                            text: '문장 복습하기',
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        TextButton(
+                          onPressed: () {
+                            // 학습하기 화면으로 이동
+                            Navigator.pushNamed(context, '/review');
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(
+                                  color: Colors.blueAccent,
+                                  width: 1,
+                                )
+                            ),
+                            minimumSize: const Size(double.infinity, 0),
+                            foregroundColor: Colors.blueAccent,
+                          ),
+                          child: SectionText(
+                            text: 'Start',
+                            fontSize: 16,
+                            color: Colors.blueAccent,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -292,5 +259,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  void updateProgress(int completeTask) {
+    setState(() {
+      progress = completeTask / 5;
+
+      // 진행률 바는 100%로 채워야 함
+      if (progress > 1) {
+        progress = 1;
+      }
+    });
   }
 }

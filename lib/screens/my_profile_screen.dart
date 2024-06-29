@@ -1,7 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:fluent/widgets/chart.dart';
+import 'package:fluent/widgets/profile_image.dart';
+import 'package:fluent/widgets/text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // 내 프로필 화면
 class MyProfileScreen extends StatefulWidget {
@@ -16,107 +20,167 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          title: const Text('프로필'),
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          actions: [
-            IconButton(
-              onPressed: () {
-                // 설정 화면으로 이동
-              },
-              icon: const Icon(Icons.settings_outlined),
-            ),
-          ],
-        ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 내 프로필 및 프로필 수정 버튼
-            Container(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // 프로필 사진
-                  const Icon(
-                    Icons.account_circle,
-                    size: 50,
+        backgroundColor: Colors.white24,
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 사용자 프로필 영역
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height / 5.5,
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(20.0), bottomRight: Radius.circular(20.0)),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.blueAccent,
+                      Colors.blueAccent.withOpacity(0.8)
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blueAccent.withOpacity(0.6),
+                      offset: const Offset(0, 1),
+                      spreadRadius: 3,
+                      blurRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ProfileImage(
+                      size: 80,
+                      canEdit: true,
+                    ),
 
-                  const SizedBox(width: 15),
-                  // 닉네임, 랭크
-                  Expanded(
-                    child: Column(
+                    // 프로필 닉네임 + 랭크 영역
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'sunoogy',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        SectionText(
+                          text: 'Soonook',
+                          fontWeight: FontWeight.w900,
+                          fontSize: 32,
+                          color: Colors.white,
                         ),
-                        Text(
-                          'silver',
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black.withOpacity(0.5)),
+                        Row(
+                          children: [
+                            Image.asset(
+                              'assets/images/ranks/silver.png',
+                              scale: 50,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              'Silver',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white.withOpacity(0.8),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ),
 
-                  // 프로필 수정 버튼
-                  GestureDetector(
-                    onTap: () {
-                      // 프로필 수정 화면으로 이동
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 7, vertical: 3),
-                      decoration: ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(7),
-                          side: BorderSide(
-                              width: 1, color: Colors.black.withOpacity(0.5)),
-                        ),
+                    // 프로필 수정 버튼
+                    IconButton(
+                      onPressed: () {
+                        // 프로필 수정 중 관심사 수정 화면으로 이동
+                        Navigator.pushNamed(context, '/register');
+                      },
+                      icon: const FaIcon(
+                        FontAwesomeIcons.solidPenToSquare,
+                        color: Colors.white,
                       ),
-                      child: const Text(
-                        'Edit Profile >',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w500,
-                        ),
+                      iconSize: 30.0,
+                    ),
+                  ],
+                ),
+              ),
+
+              // 주간 차트 영역
+              Container(
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 24.0),
+                padding: const EdgeInsets.all(24.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      offset: const Offset(0, 1),
+                      blurRadius: 1,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SectionText(
+                      text: '주간 학습 차트',
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black,
+                    ),
+
+                    const SizedBox(height: 16.0),
+                    // 그래프 --> 6주치 데이터 받아오기
+                    Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: Colors.blueGrey.withOpacity(0.15),
                       ),
+                      child: WeeklyLineChart(),
                     ),
-                  ),
-                ],
-              ),
-            ),
 
-            // 주간 점수 차트
-            const Padding(
-              padding: EdgeInsets.all(25),
-              child: Column(
-                children: [
-                  Text(
-                    'Weekly Score Chart',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'Nunito',
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: 12.0),
+                  ],
+                ),
+              ),
+
+              // 로그아웃
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 12.0),
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      offset: const Offset(0, 1),
+                      blurRadius: 1,
+                      spreadRadius: 0,
                     ),
+                  ],
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    // 카카오 로그아웃 및 토큰 삭제 후 앱 종료
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
                   ),
-
-                  // 차트
-                ],
+                  child: SectionText(
+                    text: '로그아웃',
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
