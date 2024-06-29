@@ -21,7 +21,8 @@ import 'package:record/record.dart';
 
 class LearnScreen extends ConsumerStatefulWidget {
   int? quizId; // 복습하기를 통해 이동한 경우 quizId가 부여됨
-  LearnScreen({super.key, this.quizId});
+  int? historyId; // 복습하기인 경우 historyId 부여됨
+  LearnScreen({super.key, this.quizId, this.historyId});
 
   @override
   ConsumerState<LearnScreen> createState() => _LearnScreenState();
@@ -434,7 +435,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                 curl -X POST ip/infer2/ -H "Content-Type:multipart/form-data" -F "files=/절대경로/test.m4a"
                                */
 
-                              print('[LOG] AUDIO FILE PATH : $audioPath');
+                              print('[LOG] [LEARN] AUDIO FILE PATH : $audioPath');
                               final dio = Dio();
                               // final dio = ref.read(dioProvider);
 
@@ -468,7 +469,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                     shouldRetry = false;
                                     var jsonData = response.data[0];
 
-                                    print('[LOG] AI RESPONSE: $jsonData');
+                                    print('[LOG] [LEARN] AI RESPONSE: $jsonData');
                                     // 사용자 발음 스크립트
                                     final userScript =
                                     jsonData['transcription'] as String;
@@ -478,7 +479,13 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                     /// 히스토리에 문제 푼 기록을 등록한다.
                                     final historyManager = ref.read(historyModelProvider.notifier);
 
-                                    print('[LOG] FETCH HISTORY LIST');
+                                    print('[LOG] [LEARN] FETCH HISTORY LIST');
+
+                                    // 복습하기 모드인 경우 현재 히스토리를 삭제한다.
+                                    if (widget.quizId != null && widget.historyId != null) {
+                                      await historyManager.deleteHistory(widget.historyId!);
+                                      print('[LOG] [LEARN] DELETE OLD HISTORY IN LIST');
+                                    }
 
                                     // 현재 시간 yyyy-MM-dd 로 변경
                                     final String now =
@@ -491,6 +498,8 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                     );
                                     await historyManager
                                         .addHistory(newHistoryModel);
+
+                                    print('[LOG] [LEARN] ADD NEW HISTORY IN LIST');
 
                                     // 승급전인 경우 기록한다.
                                     if (promoState.isPromo) {
@@ -505,13 +514,16 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                             .updateUser(promoModel.averageScore);
                                         promoState.reset(); // 승급전 완료 -> 초기화
                                       }
-                                    }
 
+                                      print('[LOG] [LEARN] PROCESS USER PROMOTION');
+                                    }
                                     /// 사용자 정보 갱신
                                     else {
                                       ref
                                           .read(userModelProvider.notifier)
                                           .getUser();
+
+                                      print('[LOG] [LEARN] UPDATE USER EXP');
                                     }
 
                                     /// 문자 비교 API를 호출한다. --> 보류
@@ -544,12 +556,12 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                                     print('[ERR] DioError message: ${e.message}');
                                     if (retryCount < maxRetry) {
                                       retryCount++;
-                                      print('[LOG] RETRY ATTEMP $retryCount');
+                                      print('[ERR] [LEARN] RETRY ATTEMP $retryCount');
                                       await Future.delayed(Duration(seconds: retryInterval));
                                     }
                                     else {
                                       shouldRetry = false;
-                                      print('[LOG] MAX RETRY ATTEMPS REACHED');
+                                      print('[ERR] [LEARN] MAX RETRY ATTEMPS REACHED');
                                     }
                                   }
                                 } catch (e) {

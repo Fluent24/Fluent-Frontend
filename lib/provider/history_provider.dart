@@ -52,6 +52,18 @@ class HistoryModelStateNotifier extends StateNotifier<List<HistoryModel>> {
     }
   }
 
+  Future<void> deleteHistory(int historyId) async {
+    try {
+      print('[LOG] DELETE HISTORY : historyId - $historyId');
+      await repository.deleteHistory(id: historyId);
+      // 현재 historyId인 값을 제외한 history 리스트로 재구성
+      state = state.where((element) => element.historyId != historyId).toList();
+
+    } catch (e) {
+      print('[ERR] Failed to delete history: $e');
+    }
+  }
+
   /// 히스토리 목록을 받아서 주간 평균 점수를 계산하여 반환하는 함수
   /// 총 5주차 반환
   List<double> getWeeklyAvgScore() {

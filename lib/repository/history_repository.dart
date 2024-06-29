@@ -50,6 +50,6 @@ abstract class HistoryRepository {
     'accessToken': 'true',
   })
   Future<void> deleteHistory({
-    @Path() required String id,
+    @Path() required int id,
   });
 }

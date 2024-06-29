@@ -41,8 +41,11 @@ Future<void> main() async {
             print('[LOG] ARGUMENTS: ${settings.arguments}');
             return PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) {
-                  final int quizId = settings.arguments as int;
-                  return LearnScreen(quizId: quizId);
+                  final mapArg = settings.arguments as Map<String, int>;
+                  final int quizId = mapArg['quizId']!;
+                  final int historyId = mapArg['historyId']!;
+
+                  return LearnScreen(quizId: quizId, historyId: historyId);
                 },
                 transitionsBuilder: (
                     BuildContext context,
